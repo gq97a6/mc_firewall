@@ -1,0 +1,43 @@
+name: Firewall
+version: '1.0.0'
+main: com.gq97a6.firewall.Firewall
+api-version: 1.19
+
+commands:
+  authgpmc:
+    description: "Command"
+    aliases: "ag"
+    permission: "authgpmc.admin"
+
+  authgpmc unlink?:
+    description: "Attempt to unlink player's accounts matching this value"
+    aliases: "ag unlink?"
+    usage: "/ag unlink <value> <limit>"
+    permission: "authgpmc.admin"
+
+  authgpmc unlink:
+    description: "Unlink player's accounts"
+    aliases: "ag unlink"
+    usage: "/ag unlink <username> <ip> <dc> <mc>"
+    permission: "authgpmc.admin"
+
+  authgpmc link:
+    description: "Link player's accounts"
+    aliases: "ag link"
+    usage: "/ag link <username> <ip> <dc> <mc>"
+    permission: "authgpmc.admin"
+
+  authgpmc mcban:
+    description: "Ban minecraft uuid"
+    aliases: "ag mcban"
+    permission: "authgpmc.admin"
+
+  authgpmc dcban:
+    description: "Ban discord uuid"
+    aliases: "ag dcban"
+    permission: "authgpmc.admin"
+
+  authgpmc purge:
+    description: "Remove codes older than one hour"
+    aliases: "ag purge"
+    permission: "authgpmc.admin"
