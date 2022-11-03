@@ -44,7 +44,7 @@ open class DiscordListener {
 
         val r = DB.runAction {
             //Get code from database
-            val code = executeQuery("SELECT * FROM CODES WHERE code = '$codeSend'")?.let {
+            val code = executeQuery("SELECT * FROM codes WHERE code = '$codeSend'")?.let {
                 if (it.next()) {
                     Code(
                         it.getString("ip"),
@@ -57,7 +57,7 @@ open class DiscordListener {
 
             //Get link from database
             val links =
-                executeQuery("SELECT * FROM LINKS WHERE dc_uuid = '$dcUUID'")?.let {
+                executeQuery("SELECT * FROM links WHERE dc_uuid = '$dcUUID'")?.let {
                     mutableListOf<Link>().apply {
                         while (it.next()) {
                             add(

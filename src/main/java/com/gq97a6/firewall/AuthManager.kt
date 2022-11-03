@@ -39,5 +39,5 @@ object AuthManager {
         execute("DELETE FROM codes WHERE code = '${code.code}'")
     }
 
-    fun purge() = execute("DELETE FROM LINKS WHERE added < NOW() - INTERVAL 100 HOUR")
+    fun purge() = execute("DELETE FROM links WHERE added < NOW() - INTERVAL 100 HOUR")
 }
