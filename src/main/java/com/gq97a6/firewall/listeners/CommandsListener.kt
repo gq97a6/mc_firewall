@@ -107,7 +107,7 @@ object CommandsListener {
         return if (args.size == 3 && AuthManager.unlinkTry(args[1], args[2])) {
             val code = DB.runAction {
                 //Get code from database
-                return@runAction executeQuery("SELECT * FROM CODES WHERE code = '${args[1]}'")?.let {
+                return@runAction executeQuery("SELECT * FROM codes WHERE code = '${args[1]}'")?.let {
                     if (it.next()) {
                         Code(
                             it.getString("ip"),

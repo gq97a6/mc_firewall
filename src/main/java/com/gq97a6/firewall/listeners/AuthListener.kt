@@ -4,9 +4,9 @@ import github.scarsz.discordsrv.util.DiscordUtil
 import com.gq97a6.firewall.DB
 import com.gq97a6.firewall.DB.execute
 import com.gq97a6.firewall.DB.executeQuery
+import com.gq97a6.firewall.Firewall.Companion.plugin
 import com.gq97a6.firewall.classes.Link
 import net.kyori.adventure.text.Component
-import org.bukkit.Bukkit
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
@@ -34,20 +34,24 @@ class AuthListener : Listener {
             }
 
             if (link != null) {
-                DiscordUtil.getJda().getGuildById("695225372265939015")?.getMemberById(link.dcUUID).let { m ->
-                    if (m == null) {
-                        event.disallow(
-                            KICK_WHITELIST,
-                            Component.text("Nie znajdujesz się na serwerze discord gigantów.")
-                        )
-                        return@runAction
-                    } else if (m.roles.none { role -> role.id == "1006279637699154012" }) {
-                        event.disallow(
-                            KICK_WHITELIST,
-                            Component.text("Nie posiadasz wymaganej roli na serwerze discord.")
-                        )
-                        return@runAction
+                try {
+                    DiscordUtil.getJda().getGuildById("695225372265939015")?.getMemberById(link.dcUUID).let { m ->
+                        if (m == null) {
+                            event.disallow(
+                                KICK_WHITELIST,
+                                Component.text("Nie znajdujesz się na serwerze discord gigantów.")
+                            )
+                            return@runAction
+                        } else if (m.roles.none { role -> role.id == "1006279637699154012" }) {
+                            event.disallow(
+                                KICK_WHITELIST,
+                                Component.text("Nie posiadasz wymaganej roli na serwerze discord.")
+                            )
+                            return@runAction
+                        }
                     }
+                }catch (e: Exception) {
+                    plugin.logger.info("|5| $e")
                 }
 
                 if (link.ip == event.address.hostAddress) {
@@ -69,23 +73,17 @@ class AuthListener : Listener {
             }
 
             if (link != null) event.disallow(
-                KICK_WHITELIST, Component.text(
-                    "Twoje konto wymaga ponownej weryfikacji przez serwer Discord.\n" +
-                            "Wyślij wiadomość do WhitelistBot o treści $code żeby połaczyć konta."
-                )
+                KICK_WHITELIST, Component.text("Twoje konto wymaga ponownej weryfikacji przez serwer Discord.\n" +
+                        "Wyślij wiadomość do WhitelistBot o treści $code żeby połaczyć konta.")
             )
             else event.disallow(
-                KICK_WHITELIST, Component.text(
-                    "Twoje konto wymaga weryfikacji przez serwer Discord.\n" +
-                            "Wyślij wiadomość do WhitelistBot o treści $code żeby połaczyć konta."
-                )
+                KICK_WHITELIST, Component.text("Twoje konto wymaga weryfikacji przez serwer Discord.\n" +
+                        "Wyślij wiadomość do WhitelistBot o treści $code żeby połaczyć konta.")
             )
         } ?: run {
             event.disallow(
-                KICK_WHITELIST, Component.text(
-                    "Doszło do wewnętrznego błędu serwera.\n" +
-                            "Proszę skontaktowac się z administracją."
-                )
+                KICK_WHITELIST, Component.text("Doszło do wewnętrznego błędu serwera.\n" +
+                        "Proszę skontaktowac się z administracją.")
             )
         }
     }
