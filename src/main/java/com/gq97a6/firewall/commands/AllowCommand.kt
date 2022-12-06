@@ -2,14 +2,15 @@ package com.gq97a6.firewall.commands
 
 import com.gq97a6.firewall.Manager
 import com.gq97a6.firewall.Manager.CodeResolveResult.Reason.*
+import com.gq97a6.firewall.classes.Printable.Companion.print
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 
 class AllowCommand : FirewallCommand("allow") {
-    override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>?): Boolean =
-        if (args?.size == 3) {
+    override fun onCommand(sender: CommandSender, command: Command, label: String, args: CommandArguments): Boolean {
+        if (args.none.size == 3) {
             //Resolve code
-            val result = Manager.resolveCode(args[1], args[2])
+            val result = Manager.resolveCode(args.n(0), args.n(1), args.f('d'), args.f('m'))
 
             //Reply
             sender.sendMessage(
@@ -18,15 +19,28 @@ class AllowCommand : FirewallCommand("allow") {
                     RELINKED -> "Relinked with ${result.code?.username ?: "???"}"
                     NOT_FOUND -> "Code not found"
                     INVALID -> "Invalid code"
-                    FAILED -> "Err"
+                    FAILED -> "Credentials linked or crash"
+                    BANNED -> "Credentials banned"
                 }
             )
 
-            true
+            if ((result.reason == FAILED || result.reason == BANNED) && args.f('r')) {
+                listOf(result.links, result.bans).forEach {
+                    it.print(
+                        sender,
+                        args.f('f'),
+                        args.f('f')
+                    )
+                }
+            }
+
+            return true
         } else {
-            sender.sendMessage("Err")
-            false
+            sender.sendMessage("Invalid arguments")
+            return false
         }
+    }
+
 
     override fun onTabComplete(
         sender: CommandSender,
@@ -36,6 +50,7 @@ class AllowCommand : FirewallCommand("allow") {
     ): MutableList<String> = when (args?.size) {
         2 -> mutableListOf("<code>")
         3 -> mutableListOf("<dc_uuid>")
+        4 -> mutableListOf("-ef")
         else -> mutableListOf()
     }
 }

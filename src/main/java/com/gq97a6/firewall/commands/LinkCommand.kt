@@ -6,14 +6,12 @@ import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 
 class LinkCommand : FirewallCommand("link") {
-    override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>?): Boolean =
-        if (args?.size == 5 && Code(args[2], args[1], args[3], "").link(args[4])) {
-            sender.sendMessage("Link created")
-            true
-        } else {
-            sender.sendMessage("Unlink failed")
-            false
-        }
+    override fun onCommand(sender: CommandSender, command: Command, label: String, args: CommandArguments): Boolean {
+        val result = args.none.size == 5 && Code(args.n(2), args.n(1), args.n(3), "").link(args.n(4))
+        sender.sendMessage(if (result) "Link created" else "Unlink failed")
+        return result
+    }
+
 
     override fun onTabComplete(
         sender: CommandSender,

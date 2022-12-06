@@ -1,5 +1,6 @@
 package com.gq97a6.firewall.listeners
 
+import com.gq97a6.firewall.commands.CommandArguments
 import com.gq97a6.firewall.commands.FirewallCommand
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
@@ -22,15 +23,23 @@ object CommandsListener {
     ) = if (args?.size == 0) null
     else if (args?.get(0) == "")
         mutableListOf(
-            "ban",
+            "help",
+            "allow",
+            "deny",
             "link",
-            "purge",
+            "unlink",
+            "pardon",
+            "ban",
+            "open",
+            "shut",
+            "whois",
             "select",
-            "whois"
+            "purge"
         )
     else commands.find { it.name == args?.get(0) }?.onTabComplete(sender, command, alias, args)
 
     fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>?) =
-        if (args?.size != 0) commands.find { it.name == args?.get(0) }?.onCommand(sender, command, label, args) ?: true
+        if (args?.size != 0) commands.find { it.name == args?.get(0) }
+            ?.onCommand(sender, command, label, CommandArguments(args)) ?: true
         else true
 }

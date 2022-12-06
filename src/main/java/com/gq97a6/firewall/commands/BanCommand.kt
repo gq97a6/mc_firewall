@@ -2,32 +2,23 @@ package com.gq97a6.firewall.commands
 
 import com.gq97a6.firewall.DB
 import com.gq97a6.firewall.DB.execute
-import com.gq97a6.firewall.param
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 
 class BanCommand : FirewallCommand("ban") {
-    override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>?): Boolean {
+    override fun onCommand(sender: CommandSender, command: Command, label: String, args: CommandArguments): Boolean {
+        val result = DB.runAction {
+            execute("INSERT INTO bans (ip, username, dc_uuid, mc_uuid) VALUES (" +
+                    "${args.v("ip")?.let { "'$it'" } ?: "NULL"}, " +
+                    "${args.v("username")?.let { "'$it'" } ?: "NULL"}, " +
+                    "${args.v("dc_uuid")?.let { "'$it'" } ?: "NULL"}, " +
+                    "${args.v("mc_uuid")?.let { "'$it'" } ?: "NULL"})")
 
-        val p = mutableMapOf<String, String>()
-        args?.param("--dc_uuid")?.let { p.put("dc", it) }
-        args?.param("--mc_uuid")?.let { p.put("mc", it) }
-        args?.param("--username")?.let { p.put("un", it) }
-        args?.param("--ip")?.let { p.put("ip", it) }
-
-        return DB.runAction {
-            execute(
-                "INSERT INTO links (ip, username, dc_uuid, mc_uuid) VALUES (" +
-                        "ip = '${p["ip"]}', " +
-                        "username = '${p["un"]}', " +
-                        "dc_uuid = '${p["dc"]}', " +
-                        "mc_uuid = '${p["mc"]}'" +
-                        ")"
-            )
-
-            sender.sendMessage("Ban executed")
             true
         } ?: false
+
+        sender.sendMessage(if (result) "Ban executed" else "Ban failed")
+        return result
     }
 
     override fun onTabComplete(
