@@ -9,7 +9,7 @@ class DenyCommand : FirewallCommand("deny") {
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>?) =
         DB.runAction {
             if (args?.size == 2 && args[1].isNotBlank())
-                execute("DELETE FROM codes WHERE id = '${args[1]}'")
+                execute("DELETE FROM codes WHERE code = '${args[1]}'")
             sender.sendMessage("Deny executed")
             true
         } ?: false
@@ -19,5 +19,5 @@ class DenyCommand : FirewallCommand("deny") {
         command: Command,
         alias: String,
         args: Array<out String>?
-    ) = if(args?.size == 2) mutableListOf("<id>") else mutableListOf()
+    ) = if(args?.size == 2) mutableListOf("<code>") else mutableListOf()
 }

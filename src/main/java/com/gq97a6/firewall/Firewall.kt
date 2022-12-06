@@ -1,6 +1,6 @@
 package com.gq97a6.firewall
 
-import com.gq97a6.firewall.listeners.AuthListener
+import com.gq97a6.firewall.listeners.ConnectionsListener
 import com.gq97a6.firewall.listeners.CommandsListener
 import com.gq97a6.firewall.listeners.DiscordListener
 import github.scarsz.discordsrv.DiscordSRV
@@ -15,6 +15,8 @@ class Firewall : JavaPlugin(), Listener {
     private val discordSrvListener = DiscordListener()
 
     companion object {
+        var gpdwOpen = false
+
         lateinit var dbURl: String
         lateinit var dbUser: String
         lateinit var dbPassword: String
@@ -33,7 +35,7 @@ class Firewall : JavaPlugin(), Listener {
 
         DB.initialize()
 
-        server.pluginManager.registerEvents(AuthListener(), this)
+        server.pluginManager.registerEvents(ConnectionsListener(), this)
         DiscordSRV.api.subscribe(discordSrvListener)
     }
 
