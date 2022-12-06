@@ -1,0 +1,9 @@
+database:
+  #Leave blank to use file based database
+  #Example: jdbc:mysql://localhost:3306/firewall
+  url: ""
+  user: ""
+  password: ""
+linking:
+  role: ""
+  server: ""

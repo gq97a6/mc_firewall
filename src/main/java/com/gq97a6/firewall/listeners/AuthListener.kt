@@ -1,11 +1,11 @@
 package com.gq97a6.firewall.listeners
 
-import github.scarsz.discordsrv.util.DiscordUtil
 import com.gq97a6.firewall.DB
 import com.gq97a6.firewall.DB.execute
 import com.gq97a6.firewall.DB.executeQuery
 import com.gq97a6.firewall.Firewall.Companion.plugin
 import com.gq97a6.firewall.classes.Link
+import github.scarsz.discordsrv.util.DiscordUtil
 import net.kyori.adventure.text.Component
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
@@ -50,7 +50,7 @@ class AuthListener : Listener {
                             return@runAction
                         }
                     }
-                }catch (e: Exception) {
+                } catch (e: Exception) {
                     plugin.logger.info("|5| $e")
                 }
 
@@ -61,30 +61,32 @@ class AuthListener : Listener {
             }
 
             //Check if code already associated
-            var code = executeQuery("SELECT code FROM codes WHERE ip = '${event.address.hostAddress}' AND mc_uuid = '${event.uniqueId}'")?.let {
-                if (it.next()) it.getString("code")
-                else null
-            } ?: ""
+            var code =
+                executeQuery("SELECT code FROM codes WHERE ip = '${event.address.hostAddress}' AND mc_uuid = '${event.uniqueId}'")?.let {
+                    if (it.next()) it.getString("code")
+                    else null
+                } ?: ""
 
-            //Generate new if no
+            //Generate new if not
             if (code.isEmpty()) {
                 code = List(5) { Random.nextInt(0, 9) }.joinToString("")
                 execute("INSERT INTO codes (ip, username, code, mc_uuid) VALUES ('${event.address.hostAddress}', '${event.name}', '$code', '${event.uniqueId}')")
             }
 
             if (link != null) event.disallow(
-                KICK_WHITELIST, Component.text("Twoje konto wymaga ponownej weryfikacji przez serwer Discord.\n" +
-                        "Wyślij wiadomość do WhitelistBot o treści $code żeby połaczyć konta.")
+                KICK_WHITELIST, Component.text(
+                    "Twoje konto wymaga ponownej weryfikacji przez serwer Discord.\n" +
+                            "Wyślij wiadomość do WhitelistBot o treści $code żeby połaczyć konta."
+                )
             )
             else event.disallow(
-                KICK_WHITELIST, Component.text("Twoje konto wymaga weryfikacji przez serwer Discord.\n" +
-                        "Wyślij wiadomość do WhitelistBot o treści $code żeby połaczyć konta.")
+                KICK_WHITELIST, Component.text(
+                    "Twoje konto wymaga weryfikacji przez serwer Discord.\n" +
+                            "Wyślij wiadomość do WhitelistBot o treści $code żeby połaczyć konta."
+                )
             )
         } ?: run {
-            event.disallow(
-                KICK_WHITELIST, Component.text("Doszło do wewnętrznego błędu serwera.\n" +
-                        "Proszę skontaktowac się z administracją.")
-            )
+            event.disallow(KICK_WHITELIST, Component.text("Serwer tymczasowo niedostępny."))
         }
     }
 }
