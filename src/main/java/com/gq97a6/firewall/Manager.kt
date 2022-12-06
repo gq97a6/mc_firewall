@@ -3,19 +3,19 @@ package com.gq97a6.firewall
 import com.gq97a6.firewall.DB.execute
 import com.gq97a6.firewall.DB.executeQuery
 import com.gq97a6.firewall.Manager.CodeResolveResult.Reason.*
-import com.gq97a6.firewall.Manager.changeIp
+import com.gq97a6.firewall.classes.Ban
 import com.gq97a6.firewall.classes.Code
 import com.gq97a6.firewall.classes.Link
 
 object Manager {
 
-    fun resolveCode(c: String, dcUUID: String): CodeResolveResult {
+    fun resolveCode(c: String, dcUUID: String, ignoreDC: Boolean = false, ignoreMC: Boolean = false): CodeResolveResult {
 
         if (c.length != 5) return CodeResolveResult(INVALID)
 
         var code: Code? = null
         var links: MutableList<Link>? = null
-        var bans: MutableList<Link>? = null
+        var bans: MutableList<Ban>? = null
 
         DB.runAction {
             //Get code
@@ -49,11 +49,11 @@ object Manager {
 
             //Get bans
             bans =
-                executeQuery("SELECT * FROM bans WHERE dc_uuid = '$dcUUID' OR mc_uuid = '${code?.mcUUID ?: "null"}' OR ip = '${code?.ip ?: "null"}' OR username = '${code?.username ?: "null"}'")?.let {
-                    mutableListOf<Link>().apply {
+                executeQuery("SELECT * FROM bans WHERE dc_uuid = '$dcUUID' OR mc_uuid = '${code?.mcUUID ?: ""}' OR ip = '${code?.ip ?: ""}' OR username = '${code?.username ?: ""}'")?.let {
+                    mutableListOf<Ban>().apply {
                         while (it.next()) {
                             add(
-                                Link(
+                                Ban(
                                     it.getString("ip"),
                                     it.getString("username"),
                                     it.getString("dc_uuid"),
@@ -70,16 +70,19 @@ object Manager {
         val bothMatch = links?.find { it.mcUUID == code?.mcUUID && it.dcUUID == dcUUID } != null
 
         //Code not found
-        return if (code == null || bans?.isNotEmpty() == true) CodeResolveResult(NOT_FOUND)
+        return if (code == null) CodeResolveResult(NOT_FOUND)
+
+        //Banned
+        else if (bans?.isNotEmpty() == true) CodeResolveResult(BANNED, code, links, bans)
 
         //This minecraft account and discord account are both not yet linked
-        else if (!discordExists && !minecraftExists && code?.link(dcUUID) == true) CodeResolveResult(LINKED)
+        else if ((!discordExists || ignoreDC) && (!minecraftExists || ignoreMC) && code?.link(dcUUID) == true) CodeResolveResult(LINKED, code)
 
         //This discord account is associated with this code
-        else if (bothMatch && code?.changeIp() == true) CodeResolveResult(RELINKED)
+        else if (bothMatch && code?.changeIp() == true) CodeResolveResult(RELINKED, code)
 
         //Fail
-        else CodeResolveResult(FAILED)
+        else CodeResolveResult(FAILED, code, links, bans)
     }
 
     fun Code.link(uuid: String) = DB.runAction {
@@ -103,10 +106,11 @@ object Manager {
     data class CodeResolveResult(
         val reason: Reason,
         val code: Code? = null,
-        val link: Link? = null,
+        val links: List<Link>? = null,
+        val bans: List<Ban>? = null
     ) {
         enum class Reason {
-            INVALID, NOT_FOUND, FAILED, LINKED, RELINKED
+            INVALID, NOT_FOUND, FAILED, LINKED, RELINKED, BANNED
         }
     }
 }

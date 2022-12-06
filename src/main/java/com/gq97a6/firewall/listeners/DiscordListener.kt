@@ -42,7 +42,7 @@ open class DiscordListener {
             when (result.reason) {
                 LINKED -> "✅ Twoje konto zostało połączone z ${result.code?.username ?: "❌"}."
                 RELINKED -> "✅ Odnowiono połączenie z ${result.code?.username ?: "❌"}."
-                NOT_FOUND, FAILED, INVALID -> "❌ Nie znaleziono takiego kodu."
+                NOT_FOUND, FAILED, INVALID, BANNED -> "❌ Nie znaleziono takiego kodu."
             }
         ).queue()
     }

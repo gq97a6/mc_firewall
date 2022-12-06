@@ -6,7 +6,7 @@ import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 
 class PurgeCommand : FirewallCommand("purge") {
-    override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>?) =
+    override fun onCommand(sender: CommandSender, command: Command, label: String, args: CommandArguments) =
         DB.runAction {
             execute("DELETE FROM links WHERE added < NOW() - INTERVAL 100 HOUR")
             sender.sendMessage("Database purged")
