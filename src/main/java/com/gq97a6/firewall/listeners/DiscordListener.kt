@@ -1,15 +1,16 @@
 package com.gq97a6.firewall.listeners
 
+import com.gq97a6.firewall.AuthManager
+import com.gq97a6.firewall.DB
+import com.gq97a6.firewall.DB.executeQuery
+import com.gq97a6.firewall.Firewall.Companion.plugin
+import com.gq97a6.firewall.classes.Code
+import com.gq97a6.firewall.classes.Link
 import github.scarsz.discordsrv.api.ListenerPriority
 import github.scarsz.discordsrv.api.Subscribe
 import github.scarsz.discordsrv.api.events.DiscordPrivateMessageReceivedEvent
 import github.scarsz.discordsrv.api.events.DiscordReadyEvent
 import github.scarsz.discordsrv.util.DiscordUtil
-import com.gq97a6.firewall.AuthManager
-import com.gq97a6.firewall.DB
-import com.gq97a6.firewall.DB.executeQuery
-import com.gq97a6.firewall.classes.Code
-import com.gq97a6.firewall.classes.Link
 
 open class DiscordListener {
 
@@ -27,10 +28,10 @@ open class DiscordListener {
         //Check discord
         DiscordUtil.getJda().getUserById(dcUUID).let { u ->
             if (u == null) {
-                event.message.reply("Nie należysz do serwera.").queue()
+                event.message.reply("❌ Nie należysz do serwera.").queue()
                 return
             } else if (u.jda.roles.find { it.id == "1006279637699154012" } == null) {
-                event.message.reply("Nie posiadasz wymaganej roli.").queue()
+                event.message.reply("❌ Nie posiadasz wymaganej roli.").queue()
                 return
             }
         }
@@ -38,13 +39,17 @@ open class DiscordListener {
         //Validate code
         val codeSend = event.message.contentStripped.filter { it.isDigit() }
         if (codeSend.length != 5) {
-            event.message.reply("Nieprawidłowy kod.").queue()
+            event.message.reply("❌ Nieprawidłowy kod.").queue()
             return
         }
 
-        val r = DB.runAction {
-            //Get code from database
-            val code = executeQuery("SELECT * FROM codes WHERE code = '$codeSend'")?.let {
+        var code: Code? = null
+        var links: MutableList<Link>? = null
+        var bans: MutableList<Link>? = null
+
+        DB.runAction {
+            //Get code
+            code = executeQuery("SELECT * FROM codes WHERE code = '$codeSend'")?.let {
                 if (it.next()) {
                     Code(
                         it.getString("ip"),
@@ -53,11 +58,11 @@ open class DiscordListener {
                         codeSend,
                     )
                 } else null
-            } ?: return@runAction Pair(null, null)
+            }
 
-            //Get link from database
-            val links =
-                executeQuery("SELECT * FROM links WHERE dc_uuid = '$dcUUID'")?.let {
+            //Get links
+            links =
+                executeQuery("SELECT * FROM links WHERE dc_uuid = '$dcUUID' OR mc_uuid = '${code?.mcUUID ?: ""}'")?.let {
                     mutableListOf<Link>().apply {
                         while (it.next()) {
                             add(
@@ -70,66 +75,43 @@ open class DiscordListener {
                             )
                         }
                     }
-                } ?: return@runAction Pair(null, code)
+                }
 
-            return@runAction Pair(links, code)
+            //Get bans
+            bans =
+                executeQuery("SELECT * FROM bans WHERE dc_uuid = '$dcUUID' OR mc_uuid = '${code?.mcUUID ?: "null"}' OR ip = '${code?.ip ?: "null"}' OR username = '${code?.username ?: "null"}'")?.let {
+                    mutableListOf<Link>().apply {
+                        while (it.next()) {
+                            add(
+                                Link(
+                                    it.getString("ip"),
+                                    it.getString("username"),
+                                    it.getString("dc_uuid"),
+                                    it.getString("mc_uuid")
+                                )
+                            )
+                        }
+                    }
+                }
         }
 
-        val code = r?.second
-        val dcLinks = r?.first?.filter { it.dcUUID == dcUUID } ?: listOf()
-        val mcLinks = r?.first?.filter { it.mcUUID == code?.mcUUID } ?: listOf()
+        val discordExists = links?.find { it.dcUUID == dcUUID } != null
+        val minecraftExists = links?.find { it.mcUUID == code?.mcUUID } != null
+        val bothMatch = links?.find { it.mcUUID == code?.mcUUID && it.dcUUID == dcUUID } != null
 
-        if (code == null) event.message.reply("❌ Nie znaleziono takiego kodu.").queue()
-        else if (dcLinks.isEmpty() && mcLinks.isEmpty() && AuthManager.link(code, dcUUID))
-            event.message.reply("✅ Twoje konto zostało połączone z ${code.username}.").queue()
-        else if (mcLinks.isNotEmpty()) {
-            AuthManager.changeIp(code)
-            event.message.reply("✅ Odnowiono połączenie z ${code.username}.").queue()
-        } else event.message.reply("❌ Nie znaleziono takiego kodu.").queue()
+        //Code not found
+        if (code == null || bans?.isNotEmpty() == true)
+            event.message.reply("❌ Nie znaleziono takiego kodu.").queue()
+
+        //This minecraft account and discord account are both not yet linked
+        else if (!discordExists && !minecraftExists && AuthManager.link(code!!, dcUUID))
+            event.message.reply("✅ Twoje konto zostało połączone z ${code!!.username}.").queue()
+
+        //This discord account is associated with this code
+        else if (bothMatch && AuthManager.changeIp(code!!))
+            event.message.reply("✅ Odnowiono połączenie z ${code!!.username}.").queue()
+
+        //Fail
+        else event.message.reply("❌ Nie znaleziono takiego kodu. ").queue()
     }
-
-//@Subscribe
-//fun accountsLinked(event: AccountLinkedEvent) {
-//    // Example of broadcasting a message when a new account link has been made
-//    //Bukkit.broadcastMessage(event.player.name + " just linked their MC account to their Discord user " + event.user + "!")
-//    plugin.logger.info("LINKED: ${event.player.player?.address}")
-//}
-
-//@Subscribe
-//fun accountUnlinked(event: AccountUnlinkedEvent) {
-//
-//    DiscordUtil.getJda().getUserById(event.discordId)?.openPrivateChannel()?.queue { privateChannel ->
-//        privateChannel.sendMessage("Your account has been unlinked").queue()
-//    }
-//
-//    //Example of sending a message to a channel called "unlinks" (defined in the config.yml using the Channels option) when a user unlinks
-//    //val textChannel = DiscordSRV.getPlugin().getDestinationTextChannelForGameChannelName("unlinks")
-//
-//    //if (textChannel != null) {
-//    //    textChannel.sendMessage(
-//    //        event.player.name + " (" + event.player.uniqueId + ") has unlinked their associated Discord account: "
-//    //                + (if (event.discordUser != null) event.discordUser.name else "<not available>") + " (" + event.discordId + ")"
-//    //    ).queue()
-//    //} else {
-//    //    plugin.logger.warning("Channel called \"unlinks\" could not be found in the DiscordSRV configuration")
-//    //}
-//}
-
-//@Subscribe(priority = ListenerPriority.NORMAL)
-//fun discordGuildMessageReceivedEvent(event: DiscordGuildMessageReceivedEvent) {
-//    // Example of logging a message sent in Discord
-//    plugin.logger.info("DiscordGuildMessageReceivedEvent")
-//}
-//
-//@Subscribe(priority = ListenerPriority.NORMAL)
-//fun discordGuildMessageSentEvent(event: DiscordGuildMessageSentEvent) {
-//    // Example of logging a message sent in Minecraft (being sent to Discord)
-//    plugin.logger.info("DiscordGuildMessageSentEvent")
-//}
-
-//@Subscribe(priority = ListenerPriority.NORMAL)
-//fun discordPrivateMessageSentEvent(event: DiscordPrivateMessageSentEvent) {
-//    // Example of logging a message sent in Discord
-//    plugin.logger.info("DiscordPrivateMessageSentEvent")
-//}
 }

@@ -29,6 +29,7 @@ dependencies {
     compileOnly 'com.discordsrv:discordsrv:1.26.0'
     implementation "net.dv8tion:JDA:5.0.0-alpha.21"
     implementation 'mysql:mysql-connector-java:8.0.30'
+    implementation "org.jetbrains.kotlin:kotlin-reflect:1.7.20"
 }
 
 def targetJavaVersion = 17
