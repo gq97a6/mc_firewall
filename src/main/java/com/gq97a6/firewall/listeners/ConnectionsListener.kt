@@ -3,24 +3,62 @@ package com.gq97a6.firewall.listeners
 import com.gq97a6.firewall.DB
 import com.gq97a6.firewall.DB.execute
 import com.gq97a6.firewall.DB.executeQuery
+import com.gq97a6.firewall.Firewall.Companion.gpdwOpen
 import com.gq97a6.firewall.Firewall.Companion.plugin
 import com.gq97a6.firewall.classes.Link
+import fr.xephi.authme.events.LoginEvent
 import github.scarsz.discordsrv.util.DiscordUtil
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.TextColor
+import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result.KICK_WHITELIST
 import kotlin.random.Random
+import kotlin.random.nextInt
 
-class AuthListener : Listener {
+class ConnectionsListener : Listener {
 
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    fun onLoginEvent(event: LoginEvent) {
+        if (gpdwOpen && event.player.hasPermission("firewall.admin")) {
+            event.player.sendMessage(Component.text().apply { c ->
+                c.append(
+                    Component.text("Firewall:")
+                        .color(TextColor.color(255, 174, 0))
+                        .decorate(TextDecoration.BOLD)
+                )
+                c.append(
+                    Component.text(" error")
+                        .color(TextColor.color(252, 127, 3))
+                )
+                c.append(
+                    Component.text(" gpdwOpen{")
+                        .color(TextColor.color(51, 146, 255))
+                )
+                c.append(
+                    Component.text("${Random.nextInt(10..99)}")
+                        .color(TextColor.color(255, 77, 77))
+                        .decorate(TextDecoration.BOLD)
+                )
+                c.append(
+                    Component.text("}")
+                        .color(TextColor.color(51, 146, 255))
+                )
+            })
+        }
+    }
 
     @EventHandler(priority = EventPriority.LOWEST)
     fun onAsyncPlayerPreLoginEvent(event: AsyncPlayerPreLoginEvent) {
 
-        //if (Bukkit.getWhitelistedPlayers().find { it.name == event.name } != null) event.allow()
+        if (gpdwOpen) {
+            event.allow()
+            return
+        }
 
         DB.runAction {
             val link = executeQuery("SELECT * FROM links WHERE mc_uuid = '${event.uniqueId}'")?.let {

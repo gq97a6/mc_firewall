@@ -12,7 +12,7 @@ import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
-
+import org.bukkit.command.ConsoleCommandSender
 
 class SelectCommand : FirewallCommand("select") {
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>?): Boolean {
@@ -90,7 +90,222 @@ class SelectCommand : FirewallCommand("select") {
             return true
         }
 
-        if (args?.get(1)?.contains('f') == true) {
+        //==============================================================================================================
+        // Response for console
+        //==============================================================================================================
+
+        fun respondConsole(commands: Boolean) {
+            links?.forEach {
+                sender.sendMessage(Component.text().apply { c ->
+                    c.append(Component.text("LINK  ========================"))
+
+                    if (commands) {
+                        c.append(Component.text("\n\t@WHOIS: fw whois ${it.dcUUID}"))
+                        c.append(Component.text("\n\t@UNLINK: fw unlink ${it.id}"))
+                    }
+
+                    c.append(Component.text("\n\tID: ${it.id ?: -1}"))
+                    c.append(Component.text("\n\tIP: ${it.ip}"))
+                    c.append(Component.text("\n\tUSERNAME: ${it.username}"))
+                    c.append(Component.text("\n\tDC_UUID: ${it.dcUUID}"))
+                    c.append(Component.text("\n\tMC_UUID: ${it.mcUUID}"))
+                })
+            }
+
+            codes?.forEach {
+                sender.sendMessage(Component.text().apply { c ->
+                    c.append(Component.text("CODE  ========================"))
+
+                    if (commands) {
+                        c.append(Component.text("\n\t@DENY: fw deny ${it.code}"))
+                        c.append(Component.text("\n\t@ALLOW: fw unlink ${it.id}"))
+                    }
+
+                    c.append(Component.text("\n\tID: ${it.id ?: -1}"))
+                    c.append(Component.text("\n\tIP: ${it.ip}"))
+                    c.append(Component.text("\n\tUSERNAME: ${it.username}"))
+                    c.append(Component.text("\n\tCODE: ${it.code}"))
+                    c.append(Component.text("\n\tMC_UUID: ${it.mcUUID}"))
+                })
+            }
+
+            bans?.forEach {
+                sender.sendMessage(Component.text().apply { c ->
+                    c.append(Component.text("BAN  ========================"))
+
+                    if (commands) {
+                        c.append(Component.text("\n\t@WHOIS: fw whois ${it.dcUUID}"))
+                        c.append(Component.text("\n\t@PARDON: fw pardon ${it.id}"))
+                    }
+
+                    c.append(Component.text("\n\tID: ${it.id ?: -1}"))
+                    c.append(Component.text("\n\tIP: ${it.ip}"))
+                    c.append(Component.text("\n\tUSERNAME: ${it.username}"))
+                    c.append(Component.text("\n\tDC_UUID: ${it.dcUUID}"))
+                    c.append(Component.text("\n\tMC_UUID: ${it.mcUUID}"))
+                })
+            }
+        }
+
+        //==============================================================================================================
+        // Response for player
+        //==============================================================================================================
+
+        fun respondPlayer() {
+            links?.forEach {
+                sender.sendMessage(Component.text().apply { c ->
+                    c.append(Component.text("L ").color(TextColor.color(252, 73, 3)).decorate(TextDecoration.BOLD))
+
+                    c.append(
+                        Component.text(" ID")
+                            .clickEvent(ClickEvent.suggestCommand((it.id ?: -1).toString()))
+                            .hoverEvent(HoverEvent.showText(Component.text(it.id ?: -1)))
+                    )
+                    c.append(
+                        Component.text(" IP")
+                            .clickEvent(ClickEvent.suggestCommand(it.ip))
+                            .hoverEvent(HoverEvent.showText(Component.text(it.ip)))
+                    )
+                    c.append(
+                        Component.text(" UN")
+                            .clickEvent(ClickEvent.suggestCommand(it.username))
+                            .hoverEvent(HoverEvent.showText(Component.text(it.username)))
+                    )
+                    c.append(
+                        Component.text(" DC")
+                            .clickEvent(ClickEvent.suggestCommand(it.dcUUID))
+                            .hoverEvent(HoverEvent.showText(Component.text(it.dcUUID)))
+                    )
+                    c.append(
+                        Component.text(" MC ")
+                            .clickEvent(ClickEvent.suggestCommand(it.mcUUID))
+                            .hoverEvent(HoverEvent.showText(Component.text(it.mcUUID)))
+                    )
+
+                    c.append(Component.text("  "))
+
+                    c.append(
+                        Component.text("WHOIS")
+                            .color(TextColor.color(255, 174, 0))
+                            .decorate(TextDecoration.BOLD)
+                            .clickEvent(ClickEvent.suggestCommand("/fw whois ${it.dcUUID}"))
+                    )
+                    c.append(
+                        Component.text(" UNLINK")
+                            .color(TextColor.color(255, 174, 0))
+                            .decorate(TextDecoration.BOLD)
+                            .clickEvent(ClickEvent.suggestCommand("/fw unlink ${it.id}"))
+                    )
+
+                    c.append(Component.text("\n--------------------------------------------------"))
+                })
+            }
+
+            codes?.forEach {
+                sender.sendMessage(Component.text().apply { c ->
+                    c.append(Component.text("C ").color(TextColor.color(252, 73, 3)).decorate(TextDecoration.BOLD))
+
+                    c.append(
+                        Component.text(" ID")
+                            .clickEvent(ClickEvent.suggestCommand((it.id ?: -1).toString()))
+                            .hoverEvent(HoverEvent.showText(Component.text(it.id ?: -1)))
+                    )
+                    c.append(
+                        Component.text(" IP")
+                            .clickEvent(ClickEvent.suggestCommand(it.ip))
+                            .hoverEvent(HoverEvent.showText(Component.text(it.ip)))
+                    )
+                    c.append(
+                        Component.text(" UN")
+                            .clickEvent(ClickEvent.suggestCommand(it.username))
+                            .hoverEvent(HoverEvent.showText(Component.text(it.username)))
+                    )
+                    c.append(
+                        Component.text(" CO")
+                            .clickEvent(ClickEvent.suggestCommand(it.code))
+                            .hoverEvent(HoverEvent.showText(Component.text(it.code)))
+                    )
+                    c.append(
+                        Component.text(" MC ")
+                            .clickEvent(ClickEvent.suggestCommand(it.mcUUID))
+                            .hoverEvent(HoverEvent.showText(Component.text(it.mcUUID)))
+                    )
+
+                    c.append(Component.text("  "))
+
+                    c.append(
+                        Component.text("DENY")
+                            .color(TextColor.color(255, 174, 0))
+                            .decorate(TextDecoration.BOLD)
+                            .clickEvent(ClickEvent.suggestCommand("/fw deny ${it.code}"))
+                    )
+                    c.append(Component.space())
+                    c.append(
+                        Component.text("ALLOW")
+                            .color(TextColor.color(255, 174, 0))
+                            .decorate(TextDecoration.BOLD)
+                            .clickEvent(ClickEvent.suggestCommand("/fw link ${it.username}  ${it.ip}  ${it.mcUUID} "))
+                    )
+
+                    c.append(Component.text("\n--------------------------------------------------"))
+                })
+            }
+
+            bans?.forEach {
+                sender.sendMessage(Component.text().apply { c ->
+                    c.append(Component.text("B ").color(TextColor.color(252, 73, 3)).decorate(TextDecoration.BOLD))
+
+                    c.append(
+                        Component.text(" ID")
+                            .clickEvent(ClickEvent.suggestCommand((it.id ?: -1).toString()))
+                            .hoverEvent(HoverEvent.showText(Component.text(it.id ?: -1)))
+                    )
+                    c.append(
+                        Component.text(" IP")
+                            .clickEvent(ClickEvent.suggestCommand(it.ip))
+                            .hoverEvent(HoverEvent.showText(Component.text(it.ip)))
+                    )
+                    c.append(
+                        Component.text(" UN")
+                            .clickEvent(ClickEvent.suggestCommand(it.username))
+                            .hoverEvent(HoverEvent.showText(Component.text(it.username)))
+                    )
+                    c.append(
+                        Component.text(" DC")
+                            .clickEvent(ClickEvent.suggestCommand(it.dcUUID))
+                            .hoverEvent(HoverEvent.showText(Component.text(it.dcUUID)))
+                    )
+                    c.append(
+                        Component.text(" MC ")
+                            .clickEvent(ClickEvent.suggestCommand(it.mcUUID))
+                            .hoverEvent(HoverEvent.showText(Component.text(it.mcUUID)))
+                    )
+
+                    c.append(Component.text("  "))
+
+                    c.append(
+                        Component.text("WHOIS")
+                            .color(TextColor.color(255, 174, 0))
+                            .decorate(TextDecoration.BOLD)
+                            .clickEvent(ClickEvent.suggestCommand("/fw whois ${it.dcUUID}"))
+                    )
+                    c.append(
+                        Component.text("PARDON")
+                            .color(TextColor.color(255, 174, 0))
+                            .decorate(TextDecoration.BOLD)
+                            .clickEvent(ClickEvent.suggestCommand("/fw pardon ${it.id}"))
+                    )
+
+                    c.append(Component.text("\n--------------------------------------------------"))
+                })
+            }
+        }
+
+        //==============================================================================================================
+        // Full response for player
+        //==============================================================================================================
+
+        fun respondPlayerFull() {
             links?.forEach {
                 sender.sendMessage(Component.text().apply { c ->
                     c.append(
@@ -109,7 +324,7 @@ class SelectCommand : FirewallCommand("select") {
                             .decorate(TextDecoration.BOLD)
                             .clickEvent(ClickEvent.suggestCommand("/fw unlink ${it.id}"))
                     )
-                    c.append(Component.text(" ------------------------").color(TextColor.color(252, 73, 3)))
+                    c.append(Component.text("===============").color(TextColor.color(252, 73, 3)))
 
                     c.append(
                         Component.text("\nID: ").decorate(TextDecoration.BOLD).color(TextColor.color(255, 174, 0))
@@ -153,16 +368,16 @@ class SelectCommand : FirewallCommand("select") {
                         Component.text(" DENY")
                             .color(TextColor.color(0, 127, 212))
                             .decorate(TextDecoration.BOLD)
-                            .clickEvent(ClickEvent.suggestCommand("/fw deny ${it.id}"))
+                            .clickEvent(ClickEvent.suggestCommand("/fw deny ${it.code}"))
                     )
                     c.append(Component.space())
                     c.append(
                         Component.text(" ALLOW")
                             .color(TextColor.color(0, 127, 212))
                             .decorate(TextDecoration.BOLD)
-                            .clickEvent(ClickEvent.suggestCommand("/fw allow ${it.username} ${it.ip} ${it.mcUUID} "))
+                            .clickEvent(ClickEvent.suggestCommand("/fw link ${it.username} ${it.ip} ${it.mcUUID} "))
                     )
-                    c.append(Component.text(" ------------------------").color(TextColor.color(252, 73, 3)))
+                    c.append(Component.text("===============").color(TextColor.color(252, 73, 3)))
 
 
                     c.append(
@@ -215,7 +430,7 @@ class SelectCommand : FirewallCommand("select") {
                             .decorate(TextDecoration.BOLD)
                             .clickEvent(ClickEvent.suggestCommand("/fw pardon ${it.id}"))
                     )
-                    c.append(Component.text(" ------------------------").color(TextColor.color(252, 73, 3)))
+                    c.append(Component.text("===============").color(TextColor.color(252, 73, 3)))
 
                     c.append(
                         Component.text("\nID: ").decorate(TextDecoration.BOLD).color(TextColor.color(255, 174, 0))
@@ -248,157 +463,14 @@ class SelectCommand : FirewallCommand("select") {
                     c.append(Component.text(it.mcUUID))
                 })
             }
-
-            return true
         }
 
-        links?.forEach {
-            sender.sendMessage(Component.text().apply { c ->
-                c.append(Component.text("L ").color(TextColor.color(252, 73, 3)).decorate(TextDecoration.BOLD))
+        //==============================================================================================================
+        //==============================================================================================================
 
-                c.append(
-                    Component.text(" ID")
-                        .clickEvent(ClickEvent.suggestCommand((it.id ?: -1).toString()))
-                        .hoverEvent(HoverEvent.showText(Component.text(it.id ?: -1)))
-                )
-                c.append(
-                    Component.text(" IP")
-                        .clickEvent(ClickEvent.suggestCommand(it.ip))
-                        .hoverEvent(HoverEvent.showText(Component.text(it.ip)))
-                )
-                c.append(
-                    Component.text(" UN")
-                        .clickEvent(ClickEvent.suggestCommand(it.username))
-                        .hoverEvent(HoverEvent.showText(Component.text(it.username)))
-                )
-                c.append(
-                    Component.text(" DC")
-                        .clickEvent(ClickEvent.suggestCommand(it.dcUUID))
-                        .hoverEvent(HoverEvent.showText(Component.text(it.dcUUID)))
-                )
-                c.append(
-                    Component.text(" MC ")
-                        .clickEvent(ClickEvent.suggestCommand(it.mcUUID))
-                        .hoverEvent(HoverEvent.showText(Component.text(it.mcUUID)))
-                )
-
-                c.append(Component.text("  "))
-
-                c.append(
-                    Component.text("WHOIS")
-                        .color(TextColor.color(255, 174, 0))
-                        .decorate(TextDecoration.BOLD)
-                        .clickEvent(ClickEvent.suggestCommand("/fw whois ${it.dcUUID}"))
-                )
-                c.append(
-                    Component.text(" UNLINK")
-                        .color(TextColor.color(255, 174, 0))
-                        .decorate(TextDecoration.BOLD)
-                        .clickEvent(ClickEvent.suggestCommand("/fw unlink ${it.id}"))
-                )
-
-                c.append(Component.text("\n--------------------------------------------------"))
-            })
-        }
-
-        codes?.forEach {
-            sender.sendMessage(Component.text().apply { c ->
-                c.append(Component.text("C ").color(TextColor.color(252, 73, 3)).decorate(TextDecoration.BOLD))
-
-                c.append(
-                    Component.text(" ID")
-                        .clickEvent(ClickEvent.suggestCommand((it.id ?: -1).toString()))
-                        .hoverEvent(HoverEvent.showText(Component.text(it.id ?: -1)))
-                )
-                c.append(
-                    Component.text(" IP")
-                        .clickEvent(ClickEvent.suggestCommand(it.ip))
-                        .hoverEvent(HoverEvent.showText(Component.text(it.ip)))
-                )
-                c.append(
-                    Component.text(" UN")
-                        .clickEvent(ClickEvent.suggestCommand(it.username))
-                        .hoverEvent(HoverEvent.showText(Component.text(it.username)))
-                )
-                c.append(
-                    Component.text(" CO")
-                        .clickEvent(ClickEvent.suggestCommand(it.code))
-                        .hoverEvent(HoverEvent.showText(Component.text(it.code)))
-                )
-                c.append(
-                    Component.text(" MC ")
-                        .clickEvent(ClickEvent.suggestCommand(it.mcUUID))
-                        .hoverEvent(HoverEvent.showText(Component.text(it.mcUUID)))
-                )
-
-                c.append(Component.text("  "))
-
-                c.append(
-                    Component.text("DENY")
-                        .color(TextColor.color(255, 174, 0))
-                        .decorate(TextDecoration.BOLD)
-                        .clickEvent(ClickEvent.suggestCommand("/fw deny ${it.id}"))
-                )
-                c.append(Component.space())
-                c.append(
-                    Component.text("ALLOW")
-                        .color(TextColor.color(255, 174, 0))
-                        .decorate(TextDecoration.BOLD)
-                        .clickEvent(ClickEvent.suggestCommand("/fw allow ${it.username}  ${it.ip}  ${it.mcUUID} "))
-                )
-
-                c.append(Component.text("\n--------------------------------------------------"))
-            })
-        }
-
-        bans?.forEach {
-            sender.sendMessage(Component.text().apply { c ->
-                c.append(Component.text("B ").color(TextColor.color(252, 73, 3)).decorate(TextDecoration.BOLD))
-
-                c.append(
-                    Component.text(" ID")
-                        .clickEvent(ClickEvent.suggestCommand((it.id ?: -1).toString()))
-                        .hoverEvent(HoverEvent.showText(Component.text(it.id ?: -1)))
-                )
-                c.append(
-                    Component.text(" IP")
-                        .clickEvent(ClickEvent.suggestCommand(it.ip))
-                        .hoverEvent(HoverEvent.showText(Component.text(it.ip)))
-                )
-                c.append(
-                    Component.text(" UN")
-                        .clickEvent(ClickEvent.suggestCommand(it.username))
-                        .hoverEvent(HoverEvent.showText(Component.text(it.username)))
-                )
-                c.append(
-                    Component.text(" DC")
-                        .clickEvent(ClickEvent.suggestCommand(it.dcUUID))
-                        .hoverEvent(HoverEvent.showText(Component.text(it.dcUUID)))
-                )
-                c.append(
-                    Component.text(" MC ")
-                        .clickEvent(ClickEvent.suggestCommand(it.mcUUID))
-                        .hoverEvent(HoverEvent.showText(Component.text(it.mcUUID)))
-                )
-
-                c.append(Component.text("  "))
-
-                c.append(
-                    Component.text("WHOIS")
-                        .color(TextColor.color(255, 174, 0))
-                        .decorate(TextDecoration.BOLD)
-                        .clickEvent(ClickEvent.suggestCommand("/fw whois ${it.dcUUID}"))
-                )
-                c.append(
-                    Component.text("PARDON")
-                        .color(TextColor.color(255, 174, 0))
-                        .decorate(TextDecoration.BOLD)
-                        .clickEvent(ClickEvent.suggestCommand("/fw pardon ${it.id}"))
-                )
-
-                c.append(Component.text("\n--------------------------------------------------"))
-            })
-        }
+        if (sender is ConsoleCommandSender) respondConsole(args?.get(1)?.contains('c') == true)
+        else if (args?.get(1)?.contains('f') == true) respondPlayerFull()
+        else respondPlayer()
 
         return true
     }

@@ -10,13 +10,21 @@ class BanCommand : FirewallCommand("ban") {
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>?): Boolean {
 
         val p = mutableMapOf<String, String>()
-        args?.param("--dc_uuid")?.let { p.put("dc", "dc_uuid = '$it'") }
-        args?.param("--mc_uuid")?.let { p.put("mc", "mc_uuid = '$it'") }
-        args?.param("--username")?.let { p.put("un", "username = '$it'") }
-        args?.param("--ip")?.let { p.put("ip", "ip = '$it'") }
+        args?.param("--dc_uuid")?.let { p.put("dc", it) }
+        args?.param("--mc_uuid")?.let { p.put("mc", it) }
+        args?.param("--username")?.let { p.put("un", it) }
+        args?.param("--ip")?.let { p.put("ip", it) }
 
         return DB.runAction {
-            execute("INSERT INTO links (ip, username, dc_uuid, mc_uuid) VALUES ('${p["ip"]}', '${p["un"]}', '${p["dc"]}', '${p["mc"]}')")
+            execute(
+                "INSERT INTO links (ip, username, dc_uuid, mc_uuid) VALUES (" +
+                        "ip = '${p["ip"]}', " +
+                        "username = '${p["un"]}', " +
+                        "dc_uuid = '${p["dc"]}', " +
+                        "mc_uuid = '${p["mc"]}'" +
+                        ")"
+            )
+
             sender.sendMessage("Ban executed")
             true
         } ?: false
