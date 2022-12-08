@@ -7,8 +7,15 @@ import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 
 class AllowCommand : FirewallCommand("allow") {
-    override fun onCommand(sender: CommandSender, command: Command, label: String, args: CommandArguments): Boolean {
-        if (args.none.size == 3) {
+    override val help = Help(
+        "dmrf",
+        listOf(),
+        listOf("code", "dc_uuid"),
+        "parse code"
+    )
+
+    override fun onCommand(sender: CommandSender, command: Command, label: String, args: Arguments): Boolean {
+        if (args.none.size >= 2) {
             //Resolve code
             val result = Manager.resolveCode(args.n(0), args.n(1), args.f('d'), args.f('m'))
 
@@ -39,18 +46,5 @@ class AllowCommand : FirewallCommand("allow") {
             sender.sendMessage("Invalid arguments")
             return false
         }
-    }
-
-
-    override fun onTabComplete(
-        sender: CommandSender,
-        command: Command,
-        alias: String,
-        args: Array<out String>?
-    ): MutableList<String> = when (args?.size) {
-        2 -> mutableListOf("<code>")
-        3 -> mutableListOf("<dc_uuid>")
-        4 -> mutableListOf("-ef")
-        else -> mutableListOf()
     }
 }

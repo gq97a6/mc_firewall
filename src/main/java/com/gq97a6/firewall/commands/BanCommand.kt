@@ -6,7 +6,14 @@ import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 
 class BanCommand : FirewallCommand("ban") {
-    override fun onCommand(sender: CommandSender, command: Command, label: String, args: CommandArguments): Boolean {
+    override val help = Help(
+        "",
+        listOf("dc_uuid", "mc_uuid", "username", "ip"),
+        listOf(),
+        "ban credential"
+    )
+
+    override fun onCommand(sender: CommandSender, command: Command, label: String, args: Arguments): Boolean {
         val result = DB.runAction {
             execute("INSERT INTO bans (ip, username, dc_uuid, mc_uuid) VALUES (" +
                     "${args.v("ip")?.let { "'$it'" } ?: "NULL"}, " +
@@ -20,12 +27,4 @@ class BanCommand : FirewallCommand("ban") {
         sender.sendMessage(if (result) "Ban executed" else "Ban failed")
         return result
     }
-
-    override fun onTabComplete(
-        sender: CommandSender,
-        command: Command,
-        alias: String,
-        args: Array<out String>?
-    ) = mutableListOf("--dc_uuid", "--mc_uuid", "--username", "--ip")
-        .apply { removeAll(args?.toList() ?: listOf()) }
 }

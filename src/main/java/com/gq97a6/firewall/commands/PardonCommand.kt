@@ -6,7 +6,14 @@ import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 
 class PardonCommand : FirewallCommand("pardon") {
-    override fun onCommand(sender: CommandSender, command: Command, label: String, args: CommandArguments): Boolean {
+    override val help = Help(
+        "",
+        listOf("dc_uuid", "mc_uuid", "username", "ip"),
+        listOf(),
+        "pardon credential"
+    )
+
+    override fun onCommand(sender: CommandSender, command: Command, label: String, args: Arguments): Boolean {
         val result = DB.runAction {
             execute(
                 if (args.f('a'))
@@ -28,12 +35,4 @@ class PardonCommand : FirewallCommand("pardon") {
         sender.sendMessage(if (result) "Pardon executed" else "Failed to pardon")
         return result
     }
-
-    override fun onTabComplete(
-        sender: CommandSender,
-        command: Command,
-        alias: String,
-        args: Array<out String>?
-    ) = mutableListOf("--dc_uuid", "--mc_uuid", "--username", "--ip")
-        .apply { removeAll(args?.toList() ?: listOf()) }
 }
