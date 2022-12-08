@@ -43,9 +43,9 @@ data class Ban(val ip: String?, val username: String?, val dcUUID: String?, val 
             add(" DC") { se("$dcUUID").he("$dcUUID") }
             add(" MC ") { se("$mcUUID").he("$mcUUID") }
 
-            add("\t")
+            add("    ")
 
-            add("WHOIS") { c(255, 174, 0).b().se("/fw whois $dcUUID") }
+            add(" WHOIS") { c(255, 174, 0).b().se("/fw whois $dcUUID") }
             add(" PARDON") {
                 c(255, 174, 0).b().se("/fw pardon --username $username --dc_uuid $dcUUID --ip $ip --mc_uuid $mcUUID")
             }

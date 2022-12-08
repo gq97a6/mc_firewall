@@ -6,14 +6,14 @@ import org.bukkit.command.CommandSender
 
 class WhoisCommand : FirewallCommand("whois") {
     override val help = Help(
-        "f",
+        "",
         listOf(),
         listOf("dc_uuid"),
         "check discord user"
     )
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Arguments): Boolean {
-        if (args.none.isNotEmpty()) {
+        if (args.none.isEmpty()) {
             sender.sendMessage("Invalid arguments")
             return false
         }

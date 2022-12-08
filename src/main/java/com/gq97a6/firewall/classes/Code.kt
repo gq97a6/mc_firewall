@@ -42,10 +42,10 @@ data class Code(val ip: String, val username: String, val mcUUID: String, val co
             add(" CO") { se(code).he(code) }
             add(" MC ") { se(mcUUID).he(mcUUID) }
 
-            add("\t")
+            add("    ")
 
             add("DENY") { c(255, 174, 0).b().se("/fw deny $code") }
-            add("")
+            add(" ")
             add("ALLOW") { c(255, 174, 0).b().se("/fw allow $code ") }
 
             add("\n--------------------------------------------------")

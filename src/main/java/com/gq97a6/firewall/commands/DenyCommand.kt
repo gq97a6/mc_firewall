@@ -21,7 +21,7 @@ class DenyCommand : FirewallCommand("deny") {
             } ?: false
         } else false
 
-        sender.sendMessage(if (result) "Deny executed" else "Deny failed")
+        sender.sendMessage(if (result) "Deny executed" else "Failed to deny")
         return result
     }
 }

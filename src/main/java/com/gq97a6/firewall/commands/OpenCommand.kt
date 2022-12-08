@@ -28,7 +28,7 @@ class OpenCommand : FirewallCommand("open") {
             gpdwOpen = true
             confirmCode = ""
 
-            if (sender is ConsoleCommandSender) sender.sendMessage("Firewall shut")
+            if (sender is ConsoleCommandSender) sender.sendMessage("Firewall opened")
             else sender.send { add("Firewall opened") { c(255, 77, 77) } }
         } else {
             confirmCode = Random.nextInt(1000..9999).toString()

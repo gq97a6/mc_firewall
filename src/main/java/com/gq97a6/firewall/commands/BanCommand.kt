@@ -24,7 +24,7 @@ class BanCommand : FirewallCommand("ban") {
             true
         } ?: false
 
-        sender.sendMessage(if (result) "Ban executed" else "Ban failed")
+        sender.sendMessage(if (result) "Ban executed" else "Failed to ban")
         return result
     }
 }

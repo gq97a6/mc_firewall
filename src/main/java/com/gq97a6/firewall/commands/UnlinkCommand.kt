@@ -21,7 +21,7 @@ class UnlinkCommand : FirewallCommand("unlink") {
             } ?: false
         } else false
 
-        sender.sendMessage(if (result) "Deny executed" else "Deny failed")
+        sender.sendMessage(if (result) "Unlink executed" else "Failed to link")
         return result
     }
 }

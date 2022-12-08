@@ -7,7 +7,7 @@ import org.bukkit.command.CommandSender
 
 class PardonCommand : FirewallCommand("pardon") {
     override val help = Help(
-        "",
+        "a",
         listOf("dc_uuid", "mc_uuid", "username", "ip"),
         listOf(),
         "pardon credential"
