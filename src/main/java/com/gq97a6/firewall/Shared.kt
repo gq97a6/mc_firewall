@@ -22,8 +22,8 @@ fun TextComponent.he(c: String) = this.hoverEvent(HoverEvent.showText(Component.
 fun Audience.send(action: ComponentBuilder<*, *>.() -> Unit) = this.sendMessage(Component.text().apply { action(it) })
 
 fun ComponentBuilder<*, *>.add(str: String, action: (TextComponent.() -> TextComponent)? = null) {
-    this.append(Component.text(str).apply {
-        if (action != null) this.action()
+    this.append(Component.text(str).let {
+        if (action != null) it.action() else it
     })
 }
 

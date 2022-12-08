@@ -1,10 +1,7 @@
 package com.gq97a6.firewall.commands
 
-import com.gq97a6.firewall.add
-import com.gq97a6.firewall.b
-import com.gq97a6.firewall.c
+import com.gq97a6.firewall.*
 import com.gq97a6.firewall.classes.Printable
-import com.gq97a6.firewall.send
 import net.kyori.adventure.audience.Audience
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
@@ -20,11 +17,11 @@ sealed class FirewallCommand(val name: String) {
         alias: String,
         args: Array<out String>?
     ): MutableList<String> {
-        val index = (args?.size ?: 0) - 1
+        val index = (args?.size ?: 0) - 2
 
         return if (help.parameterless) mutableListOf()
-        else if (index <= help.nones.size) {
-            mutableListOf(help.nones[index])
+        else if (index < help.nones.size) {
+            mutableListOf(help.nones[index].let { "<$it>" })
         } else help.values.map { "--$it" }.toMutableList()
             .apply { if (help.flags.isNotBlank()) add("-${help.flags}") }
             .apply { removeAll(args?.toList() ?: listOf()) }
@@ -37,19 +34,19 @@ sealed class FirewallCommand(val name: String) {
         private val explanation: String = ""
     ) : Printable {
 
-        var parameterless = flags.length + values.size + nones.size > 0
+        var parameterless = flags.length + values.size + nones.size == 0
 
         override fun printPlayer(audience: Audience, vararg args: Boolean) {
             if (args[0] && !parameterless) {
                 audience.send {
-                    add(name) { b().c(255, 174, 0) }
+                    add(name.capt()) { b().c(255, 174, 0) }
                     nones.forEach { add(" <$it>") { c(74, 140, 255) } }
                     values.forEach { add(" --$it") { c(255, 164, 54) } }
-                    add(" -$flags") { c(255, 107, 38) }
+                    if (flags.isNotBlank()) add(" -$flags") { c(255, 107, 38) }
                 }
-            } else {
+            } else if (!args[0]) {
                 audience.send {
-                    add(name) { b().c(255, 174, 0) }
+                    add(name.capt()) { b().c(255, 174, 0) }
                     add(": $explanation") { c(74, 140, 255) }
                 }
             }
@@ -58,14 +55,14 @@ sealed class FirewallCommand(val name: String) {
         override fun printConsole(audience: Audience, vararg args: Boolean) {
             if (args[0] && !parameterless) {
                 audience.send {
-                    add(name)
+                    add(name.capt())
                     nones.forEach { add(" <$it>") }
                     values.forEach { add(" --$it") }
-                    add(" -$flags")
+                    if (flags.isNotBlank()) add(" -$flags")
                 }
-            } else {
+            } else if (!args[0]) {
                 audience.send {
-                    add(name)
+                    add(name.capt())
                     add(": $explanation")
                 }
             }

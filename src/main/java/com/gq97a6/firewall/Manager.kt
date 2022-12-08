@@ -9,7 +9,12 @@ import com.gq97a6.firewall.classes.Link
 
 object Manager {
 
-    fun resolveCode(c: String, dcUUID: String, ignoreDC: Boolean = false, ignoreMC: Boolean = false): CodeResolveResult {
+    fun resolveCode(
+        c: String,
+        dcUUID: String,
+        ignoreDC: Boolean = false,
+        ignoreMC: Boolean = false
+    ): CodeResolveResult {
 
         if (c.length != 5) return CodeResolveResult(INVALID)
 
@@ -26,6 +31,7 @@ object Manager {
                         it.getString("username"),
                         it.getString("mc_uuid"),
                         c,
+                        it.getString("id").toInt()
                     )
                 } else null
             }
@@ -40,7 +46,8 @@ object Manager {
                                     it.getString("ip"),
                                     it.getString("username"),
                                     it.getString("dc_uuid"),
-                                    it.getString("mc_uuid")
+                                    it.getString("mc_uuid"),
+                                    it.getString("id").toInt()
                                 )
                             )
                         }
@@ -57,7 +64,8 @@ object Manager {
                                     it.getString("ip"),
                                     it.getString("username"),
                                     it.getString("dc_uuid"),
-                                    it.getString("mc_uuid")
+                                    it.getString("mc_uuid"),
+                                    it.getString("id").toInt()
                                 )
                             )
                         }
@@ -76,7 +84,10 @@ object Manager {
         else if (bans?.isNotEmpty() == true) CodeResolveResult(BANNED, code, links, bans)
 
         //This minecraft account and discord account are both not yet linked
-        else if ((!discordExists || ignoreDC) && (!minecraftExists || ignoreMC) && code?.link(dcUUID) == true) CodeResolveResult(LINKED, code)
+        else if ((!discordExists || ignoreDC) && (!minecraftExists || ignoreMC) && code?.link(dcUUID) == true) CodeResolveResult(
+            LINKED,
+            code
+        )
 
         //This discord account is associated with this code
         else if (bothMatch && code?.changeIp() == true) CodeResolveResult(RELINKED, code)

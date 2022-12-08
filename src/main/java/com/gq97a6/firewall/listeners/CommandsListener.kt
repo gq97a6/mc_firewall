@@ -7,7 +7,7 @@ import org.bukkit.command.CommandSender
 import kotlin.reflect.full.primaryConstructor
 
 object CommandsListener {
-    private val commands = buildList {
+    val commands = buildList {
         FirewallCommand::class.sealedSubclasses.forEach {
             it.primaryConstructor?.call()?.let { command ->
                 add(command)
@@ -38,7 +38,9 @@ object CommandsListener {
     else commands.find { it.name == args?.get(0) }?.onTabComplete(sender, command, alias, args)
 
     fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>?) =
-        if (args?.size != 0) commands.find { it.name == args?.get(0) }
+        if (args?.size == 1 && args[0].last() == '?') commands.find { it.name == args[0].dropLast(1) }
+            ?.help?.print(sender, true, false).let { true }
+        else if (args?.size != 0) commands.find { it.name == args?.get(0) }
             ?.onCommand(sender, command, label, Arguments(args)) ?: true
         else true
 }

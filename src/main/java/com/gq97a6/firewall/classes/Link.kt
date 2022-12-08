@@ -40,9 +40,9 @@ data class Link(val ip: String, val username: String, val dcUUID: String, val mc
             add(" DC") { se(dcUUID).he(dcUUID) }
             add(" MC ") { se(mcUUID).he(mcUUID) }
 
-            add("\t")
+            add("    ")
 
-            add("WHOIS") { c(255, 174, 0).b().se("/fw whois $dcUUID") }
+            add(" WHOIS") { c(255, 174, 0).b().se("/fw whois $dcUUID") }
 
             add(" UNLINK") { c(255, 174, 0).b().se("/fw unlink $id") }
 
