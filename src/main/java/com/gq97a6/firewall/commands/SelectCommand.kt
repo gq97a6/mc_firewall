@@ -9,7 +9,14 @@ import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 
 class SelectCommand : FirewallCommand("select") {
-    override fun onCommand(sender: CommandSender, command: Command, label: String, args: CommandArguments): Boolean {
+    override val help = Help(
+        "cblf",
+        listOf("dc_uuid", "mc_uuid", "username", "ip", "code"),
+        listOf(),
+        "select from database"
+    )
+
+    override fun onCommand(sender: CommandSender, command: Command, label: String, args: Arguments): Boolean {
 
         var codes: MutableList<Code>? = null
         var links: MutableList<Link>? = null
@@ -22,7 +29,7 @@ class SelectCommand : FirewallCommand("select") {
                         "${args.v("ip")?.let { "ip = '$it'" } ?: "false"} OR " +
                         "${args.v("username")?.let { "username = '$it'" } ?: "false"} OR " +
                         "${args.v("code")?.let { "code = '$it'" } ?: "false"} OR " +
-                        "${args.v("mc_uuid")?.let { "mc_uuid = '$it'" } ?: "false"} OR " +
+                        "${args.v("mc_uuid")?.let { "mc_uuid = '$it'" } ?: "false"} " +
                         "LIMIT 5")
                     ?.let {
                         mutableListOf<Code>().apply {
@@ -47,7 +54,7 @@ class SelectCommand : FirewallCommand("select") {
                             "${args.v("ip")?.let { "ip = '$it'" } ?: "false"} OR " +
                             "${args.v("username")?.let { "username = '$it'" } ?: "false"} OR " +
                             "${args.v("dc_uuid")?.let { "mc_uuid = '$it'" } ?: "false"} OR " +
-                            "${args.v("mc_uuid")?.let { "mc_uuid = '$it'" } ?: "false"} OR " +
+                            "${args.v("mc_uuid")?.let { "mc_uuid = '$it'" } ?: "false"} " +
                             "LIMIT 5"
                 )?.let {
                     mutableListOf<Link>().apply {
@@ -73,7 +80,7 @@ class SelectCommand : FirewallCommand("select") {
                             "${args.v("ip")?.let { "ip = '$it'" } ?: "false"} OR " +
                             "${args.v("username")?.let { "username = '$it'" } ?: "false"} OR " +
                             "${args.v("dc_uuid")?.let { "mc_uuid = '$it'" } ?: "false"} OR " +
-                            "${args.v("mc_uuid")?.let { "mc_uuid = '$it'" } ?: "false"} OR " +
+                            "${args.v("mc_uuid")?.let { "mc_uuid = '$it'" } ?: "false"} " +
                             "LIMIT 5"
                 )?.let {
                     mutableListOf<Link>().apply {
@@ -98,19 +105,10 @@ class SelectCommand : FirewallCommand("select") {
         }
 
         listOf(links, codes, bans).forEach {
-            it.print(sender, args.f('f'), args.f('f'))
+            it.print(sender, args.f('f'), !args.f('f'))
         }
 
         return true
     }
-
-    override fun onTabComplete(
-        sender: CommandSender,
-        command: Command,
-        alias: String,
-        args: Array<out String>?
-    ) = if (args?.size == 2) mutableListOf("-cblf")
-    else mutableListOf("--dc_uuid", "--mc_uuid", "--username", "--ip", "--code")
-        .apply { removeAll(args?.toList() ?: listOf()) }
 }
 

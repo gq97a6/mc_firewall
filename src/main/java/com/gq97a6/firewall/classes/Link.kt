@@ -1,72 +1,69 @@
 package com.gq97a6.firewall.classes
 
-import com.gq97a6.firewall.b
-import com.gq97a6.firewall.c
-import com.gq97a6.firewall.he
-import com.gq97a6.firewall.se
-import net.kyori.adventure.text.Component
-import org.bukkit.command.CommandSender
+import com.gq97a6.firewall.*
+import net.kyori.adventure.audience.Audience
 
 data class Link(val ip: String, val username: String, val dcUUID: String, val mcUUID: String, val id: Int? = null) :
     Printable {
 
-    override fun printPlayer(sender: CommandSender) {
-        sender.sendMessage(Component.text().apply { c ->
-            c.append(Component.text("LINK").c(252, 73, 3).b())
-            c.append(Component.text(" WHOIS").c(0, 127, 212).b().se("/fw whois $dcUUID"))
-            c.append(Component.text(" UNLINK").c(0, 127, 212).b().se("/fw unlink $id"))
-            c.append(Component.text("===============").c(252, 73, 3))
+    override fun printPlayer(audience: Audience, vararg args: Boolean) {
+        audience.send {
+            add("LINK") { c(252, 73, 3).b() }
+            add(" WHOIS") { c(0, 127, 212).b().se("/fw whois $dcUUID") }
+            add(" UNLINK") { c(0, 127, 212).b().se("/fw unlink $id") }
+            add("===============") { c(252, 73, 3) }
 
-            c.append(Component.text("\nID: ").b().c(255, 174, 0).se((id ?: -1).toString()))
-            c.append(Component.text(id ?: -1))
+            add("\nID: ") { b().c(255, 174, 0).se((id ?: -1).toString()) }
+            add((id ?: -1).toString())
 
-            c.append(Component.text("\nIP: ").b().c(255, 174, 0).se(ip))
-            c.append(Component.text(ip))
+            add("\nIP: ") { b().c(255, 174, 0).se(ip) }
+            add(ip)
 
-            c.append(Component.text("\nUSERNAME: ").b().c(255, 174, 0).se(username))
-            c.append(Component.text(username))
+            add("\nUSERNAME: ") { b().c(255, 174, 0).se(username) }
+            add(username)
 
-            c.append(Component.text("\nDC_UUID: ").b().c(255, 174, 0).se(dcUUID))
-            c.append(Component.text(dcUUID))
+            add("\nDC_UUID: ") { b().c(255, 174, 0).se(dcUUID) }
+            add(dcUUID)
 
-            c.append(Component.text("\nMC_UUID: ").b().c(255, 174, 0).se(mcUUID))
-            c.append(Component.text(mcUUID))
-        })
+            add("\nMC_UUID: ") { b().c(255, 174, 0).se(mcUUID) }
+            add(mcUUID)
+        }
     }
 
-    override fun printPlayerCompact(sender: CommandSender) {
-        sender.sendMessage(Component.text().apply { c ->
-            c.append(Component.text("L ").c(252, 73, 3).b())
+    override fun printPlayerCompact(audience: Audience, vararg args: Boolean) {
+        audience.send {
+            add("L ") { c(252, 73, 3).b() }
 
-            c.append(Component.text(" ID").se((id ?: -1).toString()).he((id ?: -1).toString()))
-            c.append(Component.text(" IP").se(ip).he(ip))
-            c.append(Component.text(" UN").se(username).he(username))
-            c.append(Component.text(" DC").se(dcUUID).he(dcUUID))
-            c.append(Component.text(" MC ").se(mcUUID).he(mcUUID))
+            add(" ID") { se((id ?: -1).toString()).he((id ?: -1).toString()) }
+            add(" IP") { se(ip).he(ip) }
+            add(" UN") { se(username).he(username) }
+            add(" DC") { se(dcUUID).he(dcUUID) }
+            add(" MC ") { se(mcUUID).he(mcUUID) }
 
-            c.append(Component.text("\t"))
+            add("\t")
 
-            c.append(Component.text("WHOIS").c(255, 174, 0).b().se("/fw whois $dcUUID"))
-            c.append(Component.text(" UNLINK").c(255, 174, 0).b().se("/fw unlink $id"))
+            add("WHOIS") { c(255, 174, 0).b().se("/fw whois $dcUUID") }
 
-            c.append(Component.text("\n--------------------------------------------------"))
-        })
+            add(" UNLINK") { c(255, 174, 0).b().se("/fw unlink $id") }
+
+            add("\n--------------------------------------------------")
+        }
     }
 
-    override fun printConsole(sender: CommandSender, commands: Boolean) {
-        sender.sendMessage(Component.text().apply { c ->
-            c.append(Component.text("LINK  ========================"))
+    override fun printConsole(audience: Audience, vararg args: Boolean) {
+        audience.send {
+            add("LINK  ========================")
 
-            if (commands) {
-                c.append(Component.text("\n\t@WHOIS: fw whois $dcUUID"))
-                c.append(Component.text("\n\t@UNLINK: fw unlink $id"))
+            if (args[0]) {
+                add("\n\t@WHOIS: fw whois $dcUUID")
+                add("\n\t@UNLINK: fw unlink $id")
             }
 
-            c.append(Component.text("\n\tID: ${id ?: -1}"))
-            c.append(Component.text("\n\tIP: $ip"))
-            c.append(Component.text("\n\tUSERNAME: $username"))
-            c.append(Component.text("\n\tDC_UUID: $dcUUID"))
-            c.append(Component.text("\n\tMC_UUID: $mcUUID"))
-        })
+            add("\n\tID: ${id ?: -1}")
+            add("\n\tIP: $ip")
+            add("\n\tUSERNAME: $username")
+            add("\n\tDC_UUID: $dcUUID")
+            add("\n\tMC_UUID: $mcUUID")
+        }
     }
 }

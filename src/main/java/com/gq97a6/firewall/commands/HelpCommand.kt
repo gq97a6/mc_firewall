@@ -1,31 +1,18 @@
 package com.gq97a6.firewall.commands
 
-import com.gq97a6.firewall.b
-import com.gq97a6.firewall.c
-import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.TextComponent
-import net.kyori.adventure.text.format.TextColor
-import net.kyori.adventure.text.format.TextDecoration
+import com.gq97a6.firewall.listeners.CommandsListener
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
+import org.bukkit.command.ConsoleCommandSender
 
 class HelpCommand : FirewallCommand("help") {
-    
-    
-    override fun onCommand(sender: CommandSender, command: Command, label: String, args: CommandArguments): Boolean {
-        sender.sendMessage(Component.text().apply { c ->
-            c.append(Component.text("LINK").c(252, 73, 3).b())
-            c.append(Component.text(" WHOIS").c(0, 127, 212).b())
-        })
-
+    override fun onCommand(sender: CommandSender, command: Command, label: String, args: Arguments): Boolean {
+        //CommandsListener.commands.forEach(
+        //    if (sender is ConsoleCommandSender)
+        //        { c: FirewallCommand -> c.help.printConsole(sender, args.f('c')) }
+        //    else
+        //        { c: FirewallCommand -> c.help.printPlayer(sender, args.f('c')) }
+        //)
         return true
     }
-
-
-    override fun onTabComplete(
-        sender: CommandSender,
-        command: Command,
-        alias: String,
-        args: Array<out String>?
-    ) = if (args?.size == 2) mutableListOf("<id>") else mutableListOf()
 }
