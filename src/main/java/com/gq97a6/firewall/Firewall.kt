@@ -20,6 +20,7 @@ class Firewall : JavaPlugin(), Listener {
         lateinit var dbURl: String
         lateinit var dbUser: String
         lateinit var dbPassword: String
+        lateinit var botName: String
 
         lateinit var plugin: Plugin
     }
@@ -32,6 +33,7 @@ class Firewall : JavaPlugin(), Listener {
         dbURl = config.getString("database.url") ifNone "jdbc:h2:${dataFolder.absolutePath}/database"
         dbUser = config.getString("database.user") ifNone ""
         dbPassword = config.getString("database.password") ifNone ""
+        botName = config.getString("botname") ifNone "Firewall Bot"
 
         DB.initialize()
 

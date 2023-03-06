@@ -3,6 +3,7 @@ package com.gq97a6.firewall.listeners
 import com.gq97a6.firewall.*
 import com.gq97a6.firewall.DB.execute
 import com.gq97a6.firewall.DB.executeQuery
+import com.gq97a6.firewall.Firewall.Companion.botName
 import com.gq97a6.firewall.Firewall.Companion.gpdwOpen
 import com.gq97a6.firewall.Firewall.Companion.plugin
 import com.gq97a6.firewall.classes.Link
@@ -90,13 +91,13 @@ class ConnectionsListener : Listener {
             if (link != null) event.disallow(
                 KICK_WHITELIST, Component.text(
                     "Twoje konto wymaga ponownej weryfikacji przez serwer Discord.\n" +
-                            "Wyślij wiadomość do WhitelistBot o treści $code żeby połaczyć konta."
+                            "Wyślij wiadomość do $botName o treści $code żeby połaczyć konta."
                 )
             )
             else event.disallow(
                 KICK_WHITELIST, Component.text(
                     "Twoje konto wymaga weryfikacji przez serwer Discord.\n" +
-                            "Wyślij wiadomość do WhitelistBot o treści $code żeby połaczyć konta."
+                            "Wyślij wiadomość do $botName o treści $code żeby połaczyć konta."
                 )
             )
         } ?: run {
