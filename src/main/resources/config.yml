@@ -7,3 +7,4 @@ database:
 linking:
   role: ""
   server: ""
+botname: "Firewall Bot"
