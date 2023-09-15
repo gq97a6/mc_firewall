@@ -7,7 +7,7 @@ import org.bukkit.command.CommandSender
 
 class PurgeCommand : FirewallCommand("purge") {
     override val help = Help(
-        "",
+        listOf(""),
         listOf(),
         listOf(),
         "purge database"

@@ -1,6 +1,6 @@
 package com.gq97a6.firewall.commands
 
-import com.gq97a6.firewall.Firewall.Companion.gpdwOpen
+import com.gq97a6.firewall.Firewall.Companion.isOpen
 import com.gq97a6.firewall.add
 import com.gq97a6.firewall.b
 import com.gq97a6.firewall.c
@@ -13,7 +13,7 @@ import kotlin.random.nextInt
 
 class OpenCommand : FirewallCommand("open") {
     override val help = Help(
-        "",
+        listOf(""),
         listOf(),
         listOf("confirmCode"),
         "disable firewall"
@@ -25,7 +25,7 @@ class OpenCommand : FirewallCommand("open") {
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Arguments): Boolean {
         if (args.none.contains(confirmCode) && confirmCode.isNotBlank()) {
-            gpdwOpen = true
+            isOpen = true
             confirmCode = ""
 
             if (sender is ConsoleCommandSender) sender.sendMessage("Firewall opened")

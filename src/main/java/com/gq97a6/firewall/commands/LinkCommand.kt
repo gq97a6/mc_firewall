@@ -7,7 +7,7 @@ import org.bukkit.command.CommandSender
 
 class LinkCommand : FirewallCommand("link") {
     override val help = Help(
-        "",
+        listOf(""),
         listOf(),
         listOf("username", "ip", "mc_uuid", "dc_uuid"),
         "link credentials"

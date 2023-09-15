@@ -7,7 +7,7 @@ import org.bukkit.command.CommandSender
 
 class DenyCommand : FirewallCommand("deny") {
     override val help = Help(
-        "",
+        listOf(""),
         listOf(),
         listOf("code"),
         "remove code from database"

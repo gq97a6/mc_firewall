@@ -4,7 +4,7 @@ import com.gq97a6.firewall.*
 import com.gq97a6.firewall.DB.execute
 import com.gq97a6.firewall.DB.executeQuery
 import com.gq97a6.firewall.Firewall.Companion.botName
-import com.gq97a6.firewall.Firewall.Companion.gpdwOpen
+import com.gq97a6.firewall.Firewall.Companion.isOpen
 import com.gq97a6.firewall.Firewall.Companion.plugin
 import com.gq97a6.firewall.classes.Link
 import fr.xephi.authme.events.LoginEvent
@@ -21,7 +21,7 @@ class ConnectionsListener : Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     fun onLoginEvent(event: LoginEvent) {
-        if (gpdwOpen && event.player.hasPermission("firewall.admin")) {
+        if (isOpen && event.player.hasPermission("firewall.admin")) {
             event.player.send {
                 add("Firewall:") { c(255, 174, 0).b() }
                 add(" open") { c(255, 77, 77).b() }
@@ -32,7 +32,7 @@ class ConnectionsListener : Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     fun onAsyncPlayerPreLoginEvent(event: AsyncPlayerPreLoginEvent) {
 
-        if (gpdwOpen) {
+        if (isOpen) {
             event.allow()
             return
         }

@@ -7,10 +7,10 @@ import org.bukkit.command.CommandSender
 
 class PardonCommand : FirewallCommand("pardon") {
     override val help = Help(
-        "a",
+        listOf("a(match ANY not ALL)"),
         listOf("dc_uuid", "mc_uuid", "username", "ip"),
         listOf(),
-        "pardon credential"
+        "delete ban records where"
     )
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Arguments): Boolean {
