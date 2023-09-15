@@ -13,7 +13,7 @@ import kotlin.random.nextInt
 
 class OpenCommand : FirewallCommand("open") {
     override val help = Help(
-        listOf(""),
+        listOf(),
         listOf(),
         listOf("confirmCode"),
         "disable firewall"

@@ -10,7 +10,7 @@ import org.bukkit.command.ConsoleCommandSender
 
 class ShutCommand : FirewallCommand("shut") {
     override val help = Help(
-        listOf(""),
+        listOf(),
         listOf(),
         listOf(),
         "activate firewall"
