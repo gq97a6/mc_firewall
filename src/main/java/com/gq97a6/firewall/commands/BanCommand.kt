@@ -7,7 +7,7 @@ import org.bukkit.command.CommandSender
 
 class BanCommand : FirewallCommand("ban") {
     override val help = Help(
-        listOf(""),
+        listOf(),
         listOf("dc_uuid", "mc_uuid", "username", "ip"),
         listOf(),
         "ban credential"

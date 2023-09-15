@@ -7,7 +7,7 @@ import org.bukkit.command.CommandSender
 
 class UnlinkCommand : FirewallCommand("unlink") {
     override val help = Help(
-        listOf(""),
+        listOf(),
         listOf(),
         listOf("id"),
         "unlink credentials"

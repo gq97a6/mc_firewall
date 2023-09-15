@@ -6,7 +6,7 @@ import org.bukkit.command.CommandSender
 
 class WhoisCommand : FirewallCommand("whois") {
     override val help = Help(
-        listOf(""),
+        listOf(),
         listOf(),
         listOf("dc_uuid"),
         "check discord user"
