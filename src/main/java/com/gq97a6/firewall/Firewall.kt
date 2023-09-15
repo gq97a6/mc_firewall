@@ -15,7 +15,7 @@ class Firewall : JavaPlugin(), Listener {
     private val discordSrvListener = DiscordListener()
 
     companion object {
-        var gpdwOpen = false
+        var isOpen = false
 
         lateinit var dbURl: String
         lateinit var dbUser: String

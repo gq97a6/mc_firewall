@@ -40,9 +40,24 @@ open class DiscordListener {
         //Replay
         event.message.reply(
             when (result.reason) {
-                LINKED -> "✅ Twoje konto zostało połączone z ${result.code?.username ?: "❌"}."
+                LINKED -> "✅ Twoje konto discord zostało połączone z ${result.code?.username ?: "❌"}."
                 RELINKED -> "✅ Odnowiono połączenie z ${result.code?.username ?: "❌"}."
-                NOT_FOUND, FAILED, INVALID, BANNED -> "❌ Nie znaleziono takiego kodu."
+                INVALID -> "❌ Podałeś nieprawidłowy kod."
+                BANNED -> "❌ Twój dostęp do serwera jest ograniczony."
+                NOT_FOUND -> "❌ Nie znaleziono takiego kodu."
+                FAILED -> {
+                    val linked = result.links?.filter { it.dcUUID == dcUUID } ?: listOf()
+                    //Found that dc account is already linked to another mc
+                    if (linked.isNotEmpty()) {
+                        if (linked.size == 1) "❌ Twoje konto discord jest już połączone z ${linked.first().username}."
+                        else "❌ Twoje konto discord jest już połączone z ${linked.first().username} oraz innymi."
+                    }
+                    //Did not found this dc account in result
+                    //but links are not empty so this mc account is already linked
+                    else if (result.links?.isNotEmpty() == true) {
+                        "❌ To konto minecraft jest już połączone z innym kontem discord."
+                    } else "❌ Nie udało się połączyć kont."
+                }
             }
         ).queue()
     }

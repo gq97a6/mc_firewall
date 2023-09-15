@@ -84,10 +84,8 @@ object Manager {
         else if (bans?.isNotEmpty() == true) CodeResolveResult(BANNED, code, links, bans)
 
         //This minecraft account and discord account are both not yet linked
-        else if ((!discordExists || ignoreDC) && (!minecraftExists || ignoreMC) && code?.link(dcUUID) == true) CodeResolveResult(
-            LINKED,
-            code
-        )
+        else if ((!discordExists || ignoreDC) && (!minecraftExists || ignoreMC) && code?.link(dcUUID) == true)
+            CodeResolveResult(LINKED, code)
 
         //This discord account is associated with this code
         else if (bothMatch && code?.changeIp() == true) CodeResolveResult(RELINKED, code)

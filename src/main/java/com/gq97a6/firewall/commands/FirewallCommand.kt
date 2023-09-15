@@ -20,21 +20,21 @@ sealed class FirewallCommand(val name: String) {
         val index = (args?.size ?: 0) - 2
 
         return if (help.parameterless) mutableListOf()
-        else if (index < help.nones.size) {
-            mutableListOf(help.nones[index].let { "<$it>" })
-        } else help.values.map { "--$it" }.toMutableList()
-            .apply { if (help.flags.isNotBlank()) add("-${help.flags}") }
+        else if (index < help.nones.size) mutableListOf(help.nones[index].let { "<$it>" })
+        else mutableListOf<String>()
+            .apply { help.values.forEach { add("--$it") } }
+            .apply { help.flags.forEach { add("-$it") } }
             .apply { removeAll(args?.toList() ?: listOf()) }
     }
 
     inner class Help(
-        val flags: String = "",
+        val flags: List<String> = listOf(),
         val values: List<String> = listOf(),
         val nones: List<String> = listOf(),
         private val explanation: String = ""
     ) : Printable {
 
-        var parameterless = flags.length + values.size + nones.size == 0
+        var parameterless = flags.size + values.size + nones.size == 0
 
         override fun printPlayer(audience: Audience, vararg args: Boolean) {
             if (args[0] && !parameterless) {
@@ -42,7 +42,7 @@ sealed class FirewallCommand(val name: String) {
                     add(name.capt()) { b().c(255, 174, 0) }
                     nones.forEach { add(" <$it>") { c(74, 140, 255) } }
                     values.forEach { add(" --$it") { c(255, 164, 54) } }
-                    if (flags.isNotBlank()) add(" -$flags") { c(255, 107, 38) }
+                    flags.forEach { add(" -$it") { c(255, 107, 38) } }
                 }
             } else if (!args[0]) {
                 audience.send {
@@ -58,7 +58,7 @@ sealed class FirewallCommand(val name: String) {
                     add(name.capt())
                     nones.forEach { add(" <$it>") }
                     values.forEach { add(" --$it") }
-                    if (flags.isNotBlank()) add(" -$flags")
+                    flags.forEach { add(" -$it") }
                 }
             } else if (!args[0]) {
                 audience.send {

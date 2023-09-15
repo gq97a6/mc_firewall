@@ -8,7 +8,7 @@ import org.bukkit.command.CommandSender
 
 class AllowCommand : FirewallCommand("allow") {
     override val help = Help(
-        "dmrf",
+        listOf("d(ignore dc)", "m(ignore mc)", "r(reason)", "f(full)"),
         listOf(),
         listOf("code", "dc_uuid"),
         "parse code"

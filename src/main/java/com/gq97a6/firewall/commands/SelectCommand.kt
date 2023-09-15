@@ -11,7 +11,7 @@ import org.bukkit.command.CommandSender
 
 class SelectCommand : FirewallCommand("select") {
     override val help = Help(
-        "cblf",
+        listOf("c(code)", "b(ban)", "l(link)", "f(full)"),
         listOf("dc_uuid", "mc_uuid", "username", "ip", "code"),
         listOf(),
         "select from database"
