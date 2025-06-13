@@ -4,7 +4,35 @@ database:
   url: ""
   user: ""
   password: ""
-linking:
-  role: ""
-  server: ""
-botname: "Firewall Bot"
+
+discord:
+  requiredRoleID: ""
+  serverID: ""
+  botName: ""
+
+limits:
+  maxAccountCountPerIP: 1
+  maxAccountCountPerDiscord: 1
+
+text:
+  onConnect:
+    whenNotOnServer: "You are not on the Discord server."
+    whenRequiredRoleMissing: "You do not have the required role on the Discord server."
+    whenRelinkRequired: "Your account requires re-verification through the Discord server.\nSend a message to <botName> with <code> to link accounts."
+    whenLinkRequired: "Your account requires re-verification through the Discord server.\nSend a message to <botName> with <code> to link accounts."
+    onError: "Server temporarily unavailable"
+  onBotMessage:
+    whenNotOnServer: "❌ You are not a member of the server."
+    whenRequiredRoleMissing: "❌ You do not have the required role."
+    whenLinkSuccessful: "✅ Your Discord account has been linked with "
+    whenRelinkSuccessful: "✅ Connection renewed with "
+    whenInvalidCodeSupplied: "❌ No such code found."
+    whenPlayerBanned: "❌ Your access to the server is restricted."
+    whenCodeNotFound: "❌ No such code found."
+    whenMinecraftAlreadyLinked: "❌ This Minecraft account is already linked to another Discord account."
+    whenAccountCountPerDiscord: "❌ Your Discord account is already linked to the maximum number of Minecraft accounts."
+    whenAccountCountPerIP: "❌ Your IP address is associated with the maximum number of Minecraft accounts."
+    onError: "❌ Failed to link accounts."
+
+
+

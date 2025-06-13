@@ -1,22 +1,31 @@
 package com.gq97a6.firewall.commands
 
-import com.gq97a6.firewall.DB
-import com.gq97a6.firewall.DB.execute
+import com.gq97a6.firewall.managers.DatabaseManager
+import com.gq97a6.firewall.managers.DatabaseManager.execute
+import com.gq97a6.firewall.command.PluginCommand
+import com.gq97a6.firewall.command.PluginCommandParams
+import com.gq97a6.firewall.command.RequiredParam
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 
-class UnlinkCommand : FirewallCommand("unlink") {
-    override val help = Help(
-        listOf(),
-        listOf(),
-        listOf("id"),
-        "unlink credentials"
-    )
+class UnlinkCommandParams : PluginCommandParams {
+    @RequiredParam("id", "id of link to remove")
+    var id = ""
+}
 
-    override fun onCommand(sender: CommandSender, command: Command, label: String, args: Arguments): Boolean {
-        val result = if (args.none.isNotEmpty() && args.n(0).isNotBlank()) {
-            DB.runAction {
-                execute("DELETE FROM links WHERE id = '${args.n(0)}'")
+class UnlinkCommand : PluginCommand<UnlinkCommandParams>() {
+    override val name = "unlink"
+    override val description: String = "remove a link"
+
+    override fun onCommand(
+        sender: CommandSender,
+        command: Command,
+        label: String,
+        arguments: UnlinkCommandParams
+    ): Boolean = arguments.withArguments {
+        val result = if (id.isNotEmpty()) {
+            DatabaseManager.runAction {
+                execute("DELETE FROM links WHERE id = '$id'")
                 true
             } ?: false
         } else false

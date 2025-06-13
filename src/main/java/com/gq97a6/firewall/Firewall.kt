@@ -1,8 +1,10 @@
 package com.gq97a6.firewall
 
-import com.gq97a6.firewall.listeners.ConnectionsListener
 import com.gq97a6.firewall.listeners.CommandsListener
+import com.gq97a6.firewall.listeners.ConnectionsListener
 import com.gq97a6.firewall.listeners.DiscordListener
+import com.gq97a6.firewall.managers.DatabaseManager
+import com.gq97a6.firewall.managers.StaticText
 import github.scarsz.discordsrv.DiscordSRV
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
@@ -15,12 +17,18 @@ class Firewall : JavaPlugin(), Listener {
     private val discordSrvListener = DiscordListener()
 
     companion object {
-        var isOpen = false
+        var isFirewallOpen = false
 
-        lateinit var dbURl: String
-        lateinit var dbUser: String
-        lateinit var dbPassword: String
-        lateinit var botName: String
+        var dbURl = ""
+        var dbUser = ""
+        var dbPassword = ""
+
+        var discordRequiredRoleID = ""
+        var discordServerId = ""
+        var botName = "Firewall Bot"
+
+        var maxAccountCountPerIP = 1
+        var maxAccountCountPerDiscord = 1
 
         lateinit var plugin: Plugin
     }
@@ -33,9 +41,17 @@ class Firewall : JavaPlugin(), Listener {
         dbURl = config.getString("database.url") ifNone "jdbc:h2:${dataFolder.absolutePath}/database"
         dbUser = config.getString("database.user") ifNone ""
         dbPassword = config.getString("database.password") ifNone ""
-        botName = config.getString("botname") ifNone "Firewall Bot"
 
-        DB.initialize()
+        discordRequiredRoleID = config.getString("discord.requiredRoleID") ifNone ""
+        discordServerId = config.getString("discord.serverID") ifNone ""
+        botName = config.getString("discord.botName") ifNone "Firewall Bot"
+
+        maxAccountCountPerIP = config.getString("limits.maxAccountCountPerIP")?.toIntOrNull() ?: 1
+        maxAccountCountPerDiscord = config.getString("limits.maxAccountCountPerDiscord")?.toIntOrNull() ?: 1
+
+        StaticText.initialize(config)
+        CommandsListener.initialize()
+        DatabaseManager.initialize()
 
         server.pluginManager.registerEvents(ConnectionsListener(), this)
         DiscordSRV.api.subscribe(discordSrvListener)
@@ -45,13 +61,17 @@ class Firewall : JavaPlugin(), Listener {
         DiscordSRV.api.unsubscribe(discordSrvListener)
     }
 
-    override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>?) =
-        CommandsListener.onCommand(sender, command, label, args)
+    override fun onCommand(
+        sender: CommandSender,
+        command: Command,
+        label: String,
+        args: Array<out String>
+    ): Boolean = CommandsListener.onCommand(sender, command, label, args.toList())
 
     override fun onTabComplete(
         sender: CommandSender,
         command: Command,
         alias: String,
-        args: Array<out String>?
-    ) = CommandsListener.onTabComplete(sender, command, alias, args)
+        args: Array<out String>
+    ): List<String> = CommandsListener.onTabComplete(sender, command, alias, args)
 }

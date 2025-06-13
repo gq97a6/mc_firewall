@@ -1,7 +1,17 @@
 package com.gq97a6.firewall.listeners
 
-import com.gq97a6.firewall.Manager
-import com.gq97a6.firewall.Manager.CodeResolveResult.Reason.*
+import com.gq97a6.firewall.Firewall.Companion.discordRequiredRoleID
+import com.gq97a6.firewall.managers.LinkManager
+import com.gq97a6.firewall.managers.LinkManager.CodeResolveResult.Reason.*
+import com.gq97a6.firewall.managers.StaticText.onBotCodeNotFound
+import com.gq97a6.firewall.managers.StaticText.onBotError
+import com.gq97a6.firewall.managers.StaticText.onBotInvalidCodeSupplied
+import com.gq97a6.firewall.managers.StaticText.onBotLinkSuccessful
+import com.gq97a6.firewall.managers.StaticText.onBotMinecraftAlreadyLinked
+import com.gq97a6.firewall.managers.StaticText.onBotNotOnServer
+import com.gq97a6.firewall.managers.StaticText.onBotPlayerBanned
+import com.gq97a6.firewall.managers.StaticText.onBotRelinkSuccessful
+import com.gq97a6.firewall.managers.StaticText.onBotRequiredRoleMissing
 import github.scarsz.discordsrv.api.ListenerPriority
 import github.scarsz.discordsrv.api.Subscribe
 import github.scarsz.discordsrv.api.events.DiscordPrivateMessageReceivedEvent
@@ -13,50 +23,46 @@ open class DiscordListener {
     @Subscribe
     fun onDiscordReady(event: DiscordReadyEvent?) {
         DiscordUtil.getJda().addEventListener(JDAListener())
-        //plugin.logger.info("Chatting on Discord with " + DiscordUtil.getJda().users.size + " users!")
     }
 
     @Subscribe(priority = ListenerPriority.NORMAL)
     fun onDiscordPrivateMessageReceived(event: DiscordPrivateMessageReceivedEvent) {
-
         val dcUUID = event.author.id
 
         //Check discord
-        DiscordUtil.getJda().getUserById(dcUUID).let { u ->
-            if (u == null) {
-                event.message.reply("❌ Nie należysz do serwera.").queue()
+        DiscordUtil.getJda().getUserById(dcUUID).let { user ->
+            if (user == null) {
+                event.message.reply(onBotNotOnServer).queue()
                 return
-            } else if (u.jda.roles.find { it.id == "1006279637699154012" } == null) {
-                event.message.reply("❌ Nie posiadasz wymaganej roli.").queue()
+            } else if (user.jda.roles.find { it.id == discordRequiredRoleID } == null) {
+                event.message.reply(onBotRequiredRoleMissing).queue()
                 return
             }
         }
 
         //Resolve code
         val result = event.message.contentStripped.filter { it.isDigit() }.let {
-            Manager.resolveCode(it, dcUUID)
+            LinkManager.resolveCode(it, dcUUID)
         }
 
         //Replay
         event.message.reply(
             when (result.reason) {
-                LINKED -> "✅ Twoje konto discord zostało połączone z ${result.code?.username ?: "❌"}."
-                RELINKED -> "✅ Odnowiono połączenie z ${result.code?.username ?: "❌"}."
-                INVALID -> "❌ Podałeś nieprawidłowy kod."
-                BANNED -> "❌ Twój dostęp do serwera jest ograniczony."
-                NOT_FOUND -> "❌ Nie znaleziono takiego kodu."
+                LINKED -> "$onBotLinkSuccessful ${result.code?.username ?: "❌"}."
+                RELINKED -> "$onBotRelinkSuccessful ${result.code?.username ?: "❌"}."
+                INVALID -> onBotInvalidCodeSupplied
+                BANNED -> onBotPlayerBanned
+                NOT_FOUND -> onBotCodeNotFound
                 FAILED -> {
                     val linked = result.links?.filter { it.dcUUID == dcUUID } ?: listOf()
+
                     //Found that dc account is already linked to another mc
-                    if (linked.isNotEmpty()) {
-                        if (linked.size == 1) "❌ Twoje konto discord jest już połączone z ${linked.first().username}."
-                        else "❌ Twoje konto discord jest już połączone z ${linked.first().username} oraz innymi."
-                    }
-                    //Did not found this dc account in result
+                    if (linked.isNotEmpty()) onBotMinecraftAlreadyLinked
+
+                    //Did not find this dc account in result
                     //but links are not empty so this mc account is already linked
-                    else if (result.links?.isNotEmpty() == true) {
-                        "❌ To konto minecraft jest już połączone z innym kontem discord."
-                    } else "❌ Nie udało się połączyć kont."
+                    else if (result.links?.isNotEmpty() == true) onBotMinecraftAlreadyLinked
+                    else onBotError
                 }
             }
         ).queue()

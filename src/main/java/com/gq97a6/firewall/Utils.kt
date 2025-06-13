@@ -14,10 +14,10 @@ infix fun String?.ifNone(str: String) = if (this?.isBlank() == false) this else 
 fun Array<out String>.param(key: String) = this.indexOf(key).let { if (it in 0..this.size - 2) this[it + 1] else null }
 fun String.capt() = this.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 
-fun TextComponent.c(r: Int, g: Int, b: Int) = this.color(TextColor.color(r, g, b))
-fun TextComponent.b() = this.decorate(TextDecoration.BOLD)
-fun TextComponent.se(c: String) = this.clickEvent(ClickEvent.suggestCommand((c)))
-fun TextComponent.he(c: String) = this.hoverEvent(HoverEvent.showText(Component.text(c)))
+fun TextComponent.colour(r: Int, g: Int, b: Int) = this.color(TextColor.color(r, g, b))
+fun TextComponent.bold() = this.decorate(TextDecoration.BOLD)
+fun TextComponent.suggestCommand(c: String) = this.clickEvent(ClickEvent.suggestCommand((c)))
+fun TextComponent.hover(c: String) = this.hoverEvent(HoverEvent.showText(Component.text(c)))
 
 fun Audience.send(action: ComponentBuilder<*, *>.() -> Unit) = this.sendMessage(Component.text().apply { action(it) })
 

@@ -1,50 +1,69 @@
 package com.gq97a6.firewall.commands
 
-import com.gq97a6.firewall.Manager
-import com.gq97a6.firewall.Manager.CodeResolveResult.Reason.*
-import com.gq97a6.firewall.classes.Printable.Companion.print
+import com.gq97a6.firewall.managers.LinkManager
+import com.gq97a6.firewall.managers.LinkManager.CodeResolveResult.Reason.*
+import com.gq97a6.firewall.other.Printable.Companion.print
+import com.gq97a6.firewall.command.PluginCommand
+import com.gq97a6.firewall.command.PluginCommandParams
+import com.gq97a6.firewall.command.RequiredParam
+import com.gq97a6.firewall.command.ShortFlagParam
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 
-class AllowCommand : FirewallCommand("allow") {
-    override val help = Help(
-        listOf("d(ignore dc)", "m(ignore mc)", "r(reason)", "f(full)"),
-        listOf(),
-        listOf("code", "dc_uuid"),
-        "parse code"
-    )
+class AllowCommandParams : PluginCommandParams {
+    @RequiredParam("code", "Player's code")
+    var code = ""
 
-    override fun onCommand(sender: CommandSender, command: Command, label: String, args: Arguments): Boolean {
-        if (args.none.size >= 2) {
-            //Resolve code
-            val result = Manager.resolveCode(args.n(0), args.n(1), args.f('d'), args.f('m'))
+    @RequiredParam("dc_uuid", "Player's Discord UUID")
+    var dcUuid = ""
 
-            //Reply
-            sender.sendMessage(
-                when (result.reason) {
-                    LINKED -> "Linked created with ${result.code?.username ?: "???"}"
-                    RELINKED -> "Relinked with ${result.code?.username ?: "???"}"
-                    NOT_FOUND -> "Code not found"
-                    INVALID -> "Invalid code"
-                    FAILED -> "Credentials linked or crash"
-                    BANNED -> "Credentials banned"
-                }
-            )
+    @ShortFlagParam('a', "Override links limit per Discord account")
+    var overrideAccountLimit = false
 
-            if ((result.reason == FAILED || result.reason == BANNED) && args.f('r')) {
-                listOf(result.links, result.bans).forEach {
-                    it.print(
-                        sender,
-                        args.f('f'),
-                        args.f('f')
-                    )
-                }
-            }
+    @ShortFlagParam('i', "Overrides links limit per IP")
+    var overrideIpLimit = false
+}
 
-            return true
-        } else {
-            sender.sendMessage("Invalid arguments")
+class AllowCommand : PluginCommand<AllowCommandParams>() {
+    override val name = "allow"
+    override val description = "allow player in by the code"
+
+    override fun onCommand(
+        sender: CommandSender,
+        command: Command,
+        label: String,
+        arguments: AllowCommandParams
+    ): Boolean = arguments.withArguments {
+        if (code.isEmpty()) {
+            sender.sendMessage("Invalid player's code")
             return false
         }
+
+        if (dcUuid.isEmpty()) {
+            sender.sendMessage("Invalid player's Discord UUID")
+            return false
+        }
+
+        //Resolve code
+        val result = LinkManager.resolveCode(code, dcUuid, overrideAccountLimit, overrideIpLimit)
+
+        //Reply
+        sender.sendMessage(
+            when (result.reason) {
+                LINKED -> "Successfully linked accounts for ${result.code?.username ?: "???"}"
+                RELINKED -> "Successfully relinked accounts for ${result.code?.username ?: "???"}"
+                NOT_FOUND -> "Code not found"
+                INVALID -> "Invalid player's code"
+                FAILED -> "Credentials linked or crash"
+                BANNED -> "Credentials banned"
+            }
+        )
+
+        if (result.reason == FAILED || result.reason == BANNED) {
+            result.links.print(sender)
+            result.bans.print(sender)
+        }
+
+        return true
     }
 }

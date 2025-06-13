@@ -1,13 +1,21 @@
 package com.gq97a6.firewall.listeners
 
-import com.gq97a6.firewall.*
-import com.gq97a6.firewall.DB.execute
-import com.gq97a6.firewall.DB.executeQuery
 import com.gq97a6.firewall.Firewall.Companion.botName
-import com.gq97a6.firewall.Firewall.Companion.isOpen
-import com.gq97a6.firewall.Firewall.Companion.plugin
-import com.gq97a6.firewall.classes.Link
-import fr.xephi.authme.events.LoginEvent
+import com.gq97a6.firewall.Firewall.Companion.discordRequiredRoleID
+import com.gq97a6.firewall.Firewall.Companion.discordServerId
+import com.gq97a6.firewall.Firewall.Companion.isFirewallOpen
+import com.gq97a6.firewall.add
+import com.gq97a6.firewall.bold
+import com.gq97a6.firewall.colour
+import com.gq97a6.firewall.managers.DatabaseManager
+import com.gq97a6.firewall.managers.DatabaseManager.execute
+import com.gq97a6.firewall.managers.DatabaseManager.executeQuery
+import com.gq97a6.firewall.managers.StaticText.onError
+import com.gq97a6.firewall.managers.StaticText.onLinkRequired
+import com.gq97a6.firewall.managers.StaticText.onNotOnServer
+import com.gq97a6.firewall.managers.StaticText.onRelinkRequired
+import com.gq97a6.firewall.managers.StaticText.onRequiredRoleMissing
+import com.gq97a6.firewall.other.Link
 import github.scarsz.discordsrv.util.DiscordUtil
 import net.kyori.adventure.text.Component
 import org.bukkit.event.EventHandler
@@ -19,25 +27,15 @@ import kotlin.random.Random
 
 class ConnectionsListener : Listener {
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    fun onLoginEvent(event: LoginEvent) {
-        if (isOpen && event.player.hasPermission("firewall.admin")) {
-            event.player.send {
-                add("Firewall:") { c(255, 174, 0).b() }
-                add(" open") { c(255, 77, 77).b() }
-            }
-        }
-    }
-
     @EventHandler(priority = EventPriority.LOWEST)
     fun onAsyncPlayerPreLoginEvent(event: AsyncPlayerPreLoginEvent) {
 
-        if (isOpen) {
+        if (isFirewallOpen) {
             event.allow()
             return
         }
 
-        DB.runAction {
+        DatabaseManager.runAction {
             val link = executeQuery("SELECT * FROM links WHERE mc_uuid = '${event.uniqueId}'")?.let {
                 if (it.next()) Link(
                     it.getString("ip"),
@@ -50,23 +48,22 @@ class ConnectionsListener : Listener {
 
             if (link != null) {
                 try {
-                    DiscordUtil.getJda().getGuildById("695225372265939015")?.getMemberById(link.dcUUID).let { m ->
+                    DiscordUtil.getJda().getGuildById(discordServerId)?.getMemberById(link.dcUUID).let { m ->
                         if (m == null) {
                             event.disallow(
                                 KICK_WHITELIST,
-                                Component.text("Nie znajdujesz się na serwerze discord gigantów.")
+                                Component.text(onNotOnServer)
                             )
                             return@runAction
-                        } else if (m.roles.none { role -> role.id == "1006279637699154012" }) {
+                        } else if (m.roles.none { role -> role.id == discordRequiredRoleID }) {
                             event.disallow(
                                 KICK_WHITELIST,
-                                Component.text("Nie posiadasz wymaganej roli na serwerze discord.")
+                                Component.text(onRequiredRoleMissing)
                             )
                             return@runAction
                         }
                     }
-                } catch (e: Exception) {
-                    plugin.logger.info("|5| $e")
+                } catch (_: Exception) {
                 }
 
                 if (link.ip == event.address.hostAddress) {
@@ -89,19 +86,15 @@ class ConnectionsListener : Listener {
             }
 
             if (link != null) event.disallow(
-                KICK_WHITELIST, Component.text(
-                    "Twoje konto wymaga ponownej weryfikacji przez serwer Discord.\n" +
-                            "Wyślij wiadomość do $botName o treści $code żeby połaczyć konta."
-                )
+                KICK_WHITELIST,
+                Component.text(onRelinkRequired.replace("<botName>", botName).replace("<code>", code))
             )
             else event.disallow(
-                KICK_WHITELIST, Component.text(
-                    "Twoje konto wymaga weryfikacji przez serwer Discord.\n" +
-                            "Wyślij wiadomość do $botName o treści $code żeby połaczyć konta."
-                )
+                KICK_WHITELIST,
+                Component.text(onLinkRequired.replace("<botName>", botName).replace("<code>", code))
             )
         } ?: run {
-            event.disallow(KICK_WHITELIST, Component.text("Serwer tymczasowo niedostępny."))
+            event.disallow(KICK_WHITELIST, Component.text(onError))
         }
     }
 }

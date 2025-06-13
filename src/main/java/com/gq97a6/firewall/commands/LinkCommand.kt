@@ -1,21 +1,62 @@
 package com.gq97a6.firewall.commands
 
-import com.gq97a6.firewall.Manager.link
-import com.gq97a6.firewall.classes.Code
+import com.gq97a6.firewall.other.Code
+import com.gq97a6.firewall.managers.LinkManager.link
+import com.gq97a6.firewall.command.PluginCommand
+import com.gq97a6.firewall.command.PluginCommandParams
+import com.gq97a6.firewall.command.RequiredParam
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 
-class LinkCommand : FirewallCommand("link") {
-    override val help = Help(
-        listOf(),
-        listOf(),
-        listOf("username", "ip", "mc_uuid", "dc_uuid"),
-        "link credentials"
-    )
+class LinkCommandParams : PluginCommandParams {
+    @RequiredParam("username", "Player's username")
+    var username = ""
 
-    override fun onCommand(sender: CommandSender, command: Command, label: String, args: Arguments): Boolean {
-        val result = args.none.size >= 3 && Code(args.n(1), args.n(0), args.n(2), "").link(args.n(3))
-        sender.sendMessage(if (result) "Link created" else "Failed to link")
-        return result
+    @RequiredParam("ip", "Player's IP address")
+    var ip = ""
+
+    @RequiredParam("mc_uuid", "Player's Minecraft account UUID")
+    var mcUuid = ""
+
+    @RequiredParam("dc_uuid", "Player's Discord account UUID")
+    var dcUuid = ""
+}
+
+class LinkCommand : PluginCommand<LinkCommandParams>() {
+    override val name = "link"
+    override val description: String = "create new link"
+
+    override fun onCommand(
+        sender: CommandSender,
+        command: Command,
+        label: String,
+        arguments: LinkCommandParams
+    ): Boolean = arguments.withArguments {
+
+        if (username.isEmpty()) {
+            sender.sendMessage("Username not provided")
+            return false
+        }
+
+        if (ip.isEmpty()) {
+            sender.sendMessage("IP address not provided")
+            return false
+        }
+
+        if (mcUuid.isEmpty()) {
+            sender.sendMessage("Minecraft account UUID not provided")
+            return false
+        }
+
+        if (dcUuid.isEmpty()) {
+            sender.sendMessage("Discord account UUID not provided")
+            return false
+        }
+
+
+        Code(username, ip, mcUuid, "").link(dcUuid).let {
+            sender.sendMessage(if (it) "Link created" else "Failed to link")
+            return it
+        }
     }
 }

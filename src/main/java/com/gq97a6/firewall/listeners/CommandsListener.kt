@@ -1,46 +1,21 @@
 package com.gq97a6.firewall.listeners
 
-import com.gq97a6.firewall.commands.FirewallCommand
-import com.gq97a6.firewall.commands.FirewallCommand.Arguments
-import org.bukkit.command.Command
-import org.bukkit.command.CommandSender
-import kotlin.reflect.full.primaryConstructor
+import com.gq97a6.firewall.command.PluginCommandListener
+import com.gq97a6.firewall.commands.*
 
-object CommandsListener {
-    val commands = buildList {
-        FirewallCommand::class.sealedSubclasses.forEach {
-            it.primaryConstructor?.call()?.let { command ->
-                add(command)
-            }
-        }
+object CommandsListener: PluginCommandListener() {
+    fun initialize() {
+        registerCommand(AllowCommand())
+        registerCommand(BanCommand())
+        registerCommand(DenyCommand())
+        registerCommand(HelpCommand())
+        registerCommand(LinkCommand())
+        registerCommand(DisableCommand())
+        registerCommand(PardonCommand())
+        registerCommand(PurgeCommand())
+        registerCommand(SelectCommand())
+        registerCommand(EnableCommand())
+        registerCommand(UnlinkCommand())
+        registerCommand(WhoisCommand())
     }
-
-    fun onTabComplete(
-        sender: CommandSender,
-        command: Command,
-        alias: String,
-        args: Array<out String>?
-    ) = if (args?.size == 1)
-        mutableListOf(
-            "help",
-            "allow",
-            "deny",
-            "link",
-            "unlink",
-            "pardon",
-            "ban",
-            "open",
-            "shut",
-            "whois",
-            "select",
-            "purge"
-        )
-    else commands.find { it.name == args?.get(0) }?.onTabComplete(sender, command, alias, args)
-
-    fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>?) =
-        if (args?.size == 1 && args[0].last() == '?') commands.find { it.name == args[0].dropLast(1) }
-            ?.help?.print(sender, true, false).let { true }
-        else if (args?.size != 0) commands.find { it.name == args?.get(0) }
-            ?.onCommand(sender, command, label, Arguments(args)) ?: true
-        else true
 }
