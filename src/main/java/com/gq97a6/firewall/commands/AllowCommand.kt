@@ -54,7 +54,7 @@ class AllowCommand : PluginCommand<AllowCommandParams>() {
                 RELINKED -> "Successfully relinked accounts for ${result.code?.username ?: "???"}"
                 NOT_FOUND -> "Code not found"
                 INVALID -> "Invalid player's code"
-                FAILED -> "Credentials linked or crash"
+                FAILED -> "Failed to resole the code"
                 BANNED -> "Credentials banned"
             }
         )

@@ -10,7 +10,9 @@ import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.command.ConsoleCommandSender
 
-class EnableCommand : PluginCommand<PluginCommandParams>() {
+class EnableCommandParams: PluginCommandParams
+
+class EnableCommand : PluginCommand<EnableCommandParams>() {
     override val name = "enable"
     override val description: String = "enable the firewall"
 
@@ -18,7 +20,7 @@ class EnableCommand : PluginCommand<PluginCommandParams>() {
         sender: CommandSender,
         command: Command,
         label: String,
-        arguments: PluginCommandParams
+        arguments: EnableCommandParams
     ): Boolean {
         Firewall.isFirewallOpen = false
         if (sender is ConsoleCommandSender) sender.sendMessage("Firewall enabled")
