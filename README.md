@@ -17,14 +17,6 @@ Secure your Minecraft server with comprehensive player verification and account 
 4. A link is created between: user IP address, Minecraft account and Discord account
 5. User now can join the server
 
-### FAQ
-
-1. Player joins your server for the first time
-2. Player gets disconnected and receives a code (eg. 1234)
-3. Players messages Discord Bot with that code
-4. A link is created between: user IP address, Minecraft account and Discord account
-5. User now can join the server
-
 ### Configuration
 
 |                            Field | Description                                                                                             |
